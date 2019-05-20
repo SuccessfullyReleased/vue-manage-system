@@ -4,7 +4,7 @@
 		<div class="collapse-btn" @click="collapseChage">
 			<i class="el-icon-menu"></i>
 		</div>
-		<div class="logo">Demo</div>
+		<div class="logo">vue-manage-system</div>
 		<div class="header-right">
 			<div class="header-user-con">
 				<!-- 全屏显示 -->

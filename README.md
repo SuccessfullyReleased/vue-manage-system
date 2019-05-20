@@ -1,124 +1,170 @@
 # vue-manage-system
 
-1. 框架结构
-    - [Header](src/views/common/Header.vue)
-        1. 与侧边栏的联动，控制```Sidebar```的缩放
-        2. 加载用户头像
-        3. 执行用户命令
-            - 用户设置(点击头像也能进入)
-            - 登出账户
-    
-    - [Sidebar](src/views/common/Sidebar.vue)
-        1. 显示功能列表
-        2. 与标签栏的联动，增加或删除标签
-        3. 检查用户权限，管理员拥有更多的功能
-    
-    - [Tags](src/views/common/Tags.vue)
-        1. 显示标签
-        2. 标签选项功能
-            - 关闭其他
-            - 关闭所有
-    
-    - [Home](src/views/common/Home.vue)
-        1. 组合以上三个框架组件
-        2. 缓存已打开的界面
-    
-2. 组件
-    - [bus.js](src/components/bus.js) (实现组件间通信)
-        1. 发送消息
-            ```
-            bus.$emit(key, value);
-            ```
-        2. 处理消息
-            ```
-            bus.$on(key, value => {
-                //...
-            });
-            ```
-    - [ajax.js](src/components/ajax/index.js) (封装```axios```实现网络交互)
-        - 配置说明：
-        因为需要在各个页面或组件中使用```ajax```，所以将其封装成```vue```插件
-            1. 导入包并挂载到```vue```实例上
-                ```
-                import ajax from './components/ajax'
-                Vue.use(ajax);
-                ```
-            2. 在[main.js](src/main.js)中实例化```vue```对象，并保存
-                ```
-                let VueInstance = new Vue({
-                    router,
-                    store,
-                    render: h => h(App)
-                }).$mount('#app');
-                ```
-            3. 将```vue```对象保存进```ajax```组件中
-                ```
-                VueInstance.$ajax.setVueInstance(VueInstance);
-                ```
-        - 使用说明：
-            1. 参数说明 [option.d.ts](src/components/ajax/types/index.d.ts)
-                - ```method```：   
-                ```http```请求类型 (默认为```POST```)
-                - ```url```：   
-                请求地址 (必需参数，没有则会寻找```root```和```path```参数)
-                - ```root```：   
-                自定义主机地址及端口 (默认为本项目配置的后台地址端口)
-                - ```path```：   
-                自定义请求地址 (默认为404)
-                - ```params```：   
-                ```JS```对象，属性为请求的参数 (默认为```null```)
-                - ```contentType```：   
-                设置参数的数据类型```json```或```form``` (默认为```json```)
-                - ```success```：   
-                请求成功时执行的回调函数 (默认不执行)
-                - ```error```：   
-                请求失败时执行的回调函数 (默认不执行)
-                - ```loadingOptions```：   
-                在进行网络通信时显示```loading```过场动画，通信结束后关闭 (默认开启)
-                - ```dev```：   
-                开发环境与生产环境切换 (默认开发环境:```true```)
-            2. 调用说明
-                ```
-                this.$ajax.request(options);//this为vue对象
-                ```
-3. 页面
-    - [login](src/views/login.vue)
-        1. 验证用户名与密码
-        2. 实现自动登录
-    - [welcome](src/views/welcome.vue)
-        1. 显示用户名、用户头像及用户级别
-        2. 简单罗列本系统的功能
-    - [user_manage]() (必须拥有超级管理员权限，否则无法进入该页面)
-        1. 表格展示所有用户
-        2. ```table```与```pagination```组件联动，实现表格分页
-        3. 可以通过关键字搜索用户的信息
-        4. 可以添加、删除用户、修改用户信息   
-        (表格不会展示超级管理员的用户信息，想要修改需要通过超级管理员账户的用户设置)
-        
-4. 业务逻辑
-    - 用户验证：
-        - [login](src/views/login.vue)  
-        检查浏览器本地缓存  
-            1. 如果有```uid```和```username```
-                - 页面重定向到[welcome](src/views/welcome.vue)
-            2. 如果没有
-                - 进入正常的登录流程，知道```username```和```password```验证成功
-                - 将获取到的```uid```和```username```存入浏览器缓存
-                - 页面重定向到[welcome](src/views/welcome.vue)
-        - [main.js](src/main.js)  
-        检查浏览器本地缓存
-            - 如果没有```uid```和```username```
-                页面重定向到[login](src/views/login.vue)
+```vue-manage-system``` 是基于 ```Vue``` 的轻量级后台管理系统，适用于中小型项目的管理后台，支持页面元素级别的权限控制，系统具有最基本的用户管理、用户组管理、角色管理、权限管理等通用性功能。
 
-    - 权限验证：
+[本项目（私有）：https://github.com/SuccessfullyReleased/vue-manage-system](https://github.com/SuccessfullyReleased/vue-manage-system)
+
+
+[后台项目（公有）：https://github.com/SuccessfullyReleased/spring-boot-manage-system](https://github.com/SuccessfullyReleased/spring-boot-manage-system)
+
+## 技术选型
+
+技术 | 介绍 | 版本 |  官网（中文）
+----|------|----|----
+vue | Javascript渐进式框架 | 2.6.10 |  [https://cn.vuejs.org/](https://cn.vuejs.org/)
+vue-router | Vue官方路由管理器 | 3.0.3 |  [https://router.vuejs.org/zh/](https://router.vuejs.org/zh/)
+vuex | Vue官方状态管理模式 | 3.0.1 |  [https://vuex.vuejs.org/zh/](https://vuex.vuejs.org/zh/)
+element-ui| 基于 Vue 2.0 的桌面端组件库 | 2.8.2 |  [https://element.eleme.cn/#/zh-CN](https://element.eleme.cn/#/zh-CN)
+vue-cookies | 简单的处理浏览器cookie的vue插件 | 1.5.13 |  [https://www.npmjs.com/package/vue-cookies](https://www.npmjs.com/package/vue-cookies)
+axios | 基于 promise 的 HTTP 库 | 0.18.0 |  [https://www.kancloud.cn/yunye/axios/234845](https://www.kancloud.cn/yunye/axios/234845)
+lodash | 高性能的 JavaScript 实用工具库 | 4.17.11 |  [https://www.lodashjs.com/](https://www.lodashjs.com/)
+less | CSS 预处理语言 | 3.0.4 |  [http://lesscss.cn/](http://lesscss.cn/)
+
+
+## 框架结构
+
+- [Header](src/views/common/Header.vue) （头部）
+    1. 与侧边栏的联动，控制 ```Sidebar``` 的缩放
+    2. 加载用户头像
+    3. 执行用户命令
+        - 用户设置（点击头像也能进入）
+        - 登出账户
+    
+- [Sidebar](src/views/common/Sidebar.vue) （侧边栏）
+    1. 显示功能列表
+    2. 与标签栏的联动，增加或删除标签
+    3. 检查用户权限，管理员拥有更多的功能
+    
+- [Tags](src/views/common/Tags.vue) （标签）
+    1. 显示标签
+    2. 标签选项功能
+        - 关闭其他
+        - 关闭所有
+    
+- [Home](src/views/common/Home.vue) （主体）
+    1. 组合以上三个框架组件
+    2. 缓存已打开的界面
+    
+## 组件
+
+- [bus.js](src/components/bus.js) （实现组件间通信）
+    1. 发送消息
+        ```
+        bus.$emit(key, value);
+        ```
+    2. 处理消息
+        ```
+        bus.$on(key, value => {
+            //...
+        });
+        ```
+- [ajax.js](src/components/ajax/index.js) （封装 ```axios``` 实现网络交互）
+    - 配置说明：
+    因为需要在各个页面或组件中使用 ```ajax``` ，所以将其封装成 ```vue``` 插件
+        1. 导入包并挂载到 ```vue``` 实例上
+            ```
+            import ajax from './components/ajax'
+            Vue.use(ajax);
+            ```
+        2. 在 [main.js](src/main.js) 中实例化 ```vue``` 对象，并保存
+            ```
+            let VueInstance = new Vue({
+                router,
+                store,
+                render: h => h(App)
+            }).$mount('#app');
+            ```
+        3. 将 ```vue``` 对象保存进 ```ajax``` 组件中
+            ```
+            VueInstance.$ajax.setVueInstance(VueInstance);
+            ```
+    - 使用说明：
+        1. 参数说明 [option.d.ts](src/components/ajax/types/index.d.ts)
+            - ```method``` ：   
+            ```http``` 请求类型 （默认为 ```POST``` ）
+            - ```url``` ：   
+            请求地址 （必需参数，没有则会寻找 ```root``` 和 ```path``` 参数）
+            - ```root``` ：   
+            自定义主机地址及端口 （默认为本项目配置的后台地址端口）
+            - ```path``` ：   
+            自定义请求地址 （默认为404）
+            - ```params``` ：   
+            ```JS```对象，将自动转化为 ```url``` 的参数 （默认为 ```null``` ）
+            - ```data``` ：   
+            ```JS```对象，不能用于 ```GET``` ，请求主体的数据 （默认为 ```null``` ）
+            - ```async``` ：   
+            设置本次请求是否异步加载 （默认为 ```true``` ）
+            - ```auth``` ：   
+            设置本次请求是否加上请求头 ```authorization``` ，属性值为 ```cookie``` 中的 ```token``` （默认为 ```true``` ）
+            - ```success``` ：   
+            请求成功时执行的回调函数 （默认不执行）
+            - ```error``` ：   
+            请求失败时执行的回调函数 （默认不执行）
+            - ```loadingOptions``` ：   
+            在进行网络通信时显示 ```loading``` 过场动画，通信结束后关闭 （默认开启）
+            - ```dev``` ：   
+            开发环境与生产环境切换 （默认生产环境: ```false``` ）
+        2. 调用说明
+            ```
+            this.$ajax.request(options);//this为vue对象
+            ```
+## 页面
+
+- [login](src/views/login.vue)
+    1. 验证用户名与密码
+    2. 实现自动登录
+- [register](src/views/register.vue)
+    1. 注册用户
+- [welcome](src/views/welcome.vue)
+    1. 显示用户名、用户头像及用户级别
+    2. 简单罗列本系统的功能
+- [user_manage](src/views/user_manage.vue) （进入该页面需要验证权限）
+    1. 实现用户基本的 ```CRUD``` 操作
+    2. 实现 用户+用户组 和 用户+角色 的 ```CRUD``` 操作
+- [group_manage](src/views/group_manage.vue) （进入该页面需要验证权限）
+    1. 实现用户组基本的 ```CRUD``` 操作
+    2. 实现 用户组+角色 的 ```CRUD``` 操作
+- [role_manage](src/views/role_manage.vue) （进入该页面需要验证权限）
+    1. 实现角色基本的 ```CRUD``` 操作
+    2. 可点击权限进入权限页面
+- [access_manage](src/views/access_manage.vue) （进入该页面需要验证权限）
+    1. 树状图展示所有角色的权限
+    2. 可以修改角色的权限
+        
+## 业务逻辑
+- 用户验证：
+    - [login](src/views/login.vue)  
+    检查浏览器 ```cookie```  
+        1. 如果有 ```token``` 且 ```token``` 验证通过
+            - 页面重定向到 [welcome](src/views/welcome.vue)
+        2. 如果没有
+            - 进入正常的登录流程，使用 ```username``` 和 ```password``` 登录
+            - 将获取到的 ```token``` 存入浏览器缓存
+            - 页面重定向到 [welcome](src/views/welcome.vue)
+    - [main.js](src/main.js)  
+    验证 ```token``` 存在且 ```token``` 正确
+        1. 如果没有通过
+            - 3秒后页面重定向到 [login](src/views/login.vue)
+        2. 验证通过
+    - [ajax.js](src/components/ajax/index.js)  
+    每次请求都会获取浏览器 ```cookie```  中的 ```token``` ,使用请求头 ```authorization``` 发送
+        1. 如果 ```http``` 状态码为 ```401```
+            - 3秒后页面重定向到 [login](src/views/login.vue)
+        2. 验证通过
+
+- 权限验证：  
+    本系统的权限分为两种，一种为获取资源的权限（菜单），一种为操作的权限（ ```CRUD``` ）
+    - 菜单验证：
+        - [Sidebar](src/views/common/Sidebar.vue)  
+        如果该用户没有进入某个菜单的权限， ```Sidebar``` 将不会显示
         - [main.js](src/main.js)  
-        在进入一个页面之前验证用户等级
-            1. 如验证通过，进入页面
-            2. 验证不通过，进入[403](src/views/403.vue)
-- 扩展：
-    - angular
-    - redis
-    - nginx
-    - 头像悬停样式
-    - 表格分页的样式
-    - 表格没有本人信息
+        用户验证通过后，如果该用户没有进入某个菜单的权限，任何获取该页面的方法都将返回 [403](src/views/403.vue)
+    - 操作验证：
+        - [user_manage](src/views/user_manage.vue) | [group_manage](src/views/group_manage.vue) | [role_manage](src/views/role_manage.vue) | [access_manage](src/views/access_manage.vue)  
+        如果该用户没有某个操作的权限，该操作所对应的页面元素将被禁用
+
+## 未完成扩展：
+
+- 头像悬停样式
+
+- 表格修改头像

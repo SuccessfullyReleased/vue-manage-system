@@ -9,7 +9,7 @@ export default new Router({
 	routes: [
 		{
 			path: '/',
-			redirect: '/login'
+			redirect: '/welcome'
 		},
 		{
 			//登录界面
@@ -77,9 +77,9 @@ export default new Router({
 				},
 				{
 					//权限管理界面
-					path: '/permission_manage',
-					name: 'permission_manage',
-					component: () => import("@views/permission_manage.vue"),
+					path: '/access_manage',
+					name: 'access_manage',
+					component: () => import("@views/access_manage.vue"),
 					meta: {title: '权限管理', permission: true,}
 				}
 			]

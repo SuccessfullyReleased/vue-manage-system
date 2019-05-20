@@ -3,7 +3,7 @@
 const resolve = (dir) => require('path').join(__dirname, dir);
 
 module.exports = {
-	publicPath: "vue-post-bar",
+	publicPath: "vue-manage-system",
 	devServer: {
 		open: true,
 		port: 5001,

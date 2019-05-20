@@ -36,8 +36,8 @@ Vue.use(bus);
 router.beforeEach((to, from, next) => {
 	let token = cookies.get("token");
 	let user = store.getters.getUser;
-	if ((!token || !user) && to.path !== '/login' && to.path !== '/register') {
-		next('/login');
+	if ((!token || !user) && to.path !== "/login" && to.path !== "/register") {
+		next("/login");
 	} else if (to.meta.permission) {
 		ajax.request({
 			method: ajax.method.GET,
@@ -49,7 +49,21 @@ router.beforeEach((to, from, next) => {
 				text: "正在切换页面"
 			},
 			success: () => {
-				next();
+				let index = _.findIndex(user.accesses, access => {
+					if (access.menu) {
+						return access.menu.name === to.meta.title;
+					} else {
+						return false;
+					}
+				});
+				if (index === -1)
+					next("/403");
+				else {
+					next();
+				}
+			},
+			error: () => {
+				console.error("用户token已失效,回到登录页面");
 			}
 		});
 	} else {

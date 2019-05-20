@@ -36,8 +36,12 @@
 			},
 			// 关闭单个标签
 			closeTags(index) {
+				if (this.tagsList.length === 1 && this.tagsList[index].path === "/welcome") {
+					return;
+				}
 				const delItem = this.tagsList.splice(index, 1)[0];
 				const item = this.tagsList[index] ? this.tagsList[index] : this.tagsList[index - 1];
+				console.log(item);
 				if (item) {
 					delItem.path === this.$route.fullPath && this.$router.push(item.path);
 				} else {
@@ -57,6 +61,9 @@
 			},
 			// 关闭全部标签
 			closeAll() {
+				if (this.tagsList.length === 1 && this.tagsList[index].path === "/welcome") {
+					return;
+				}
 				this.tagsList = [];
 				this.$router.push('/');
 			},

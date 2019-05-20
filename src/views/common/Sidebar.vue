@@ -32,6 +32,8 @@
 
 <script>
 
+	import {mapGetters} from "vuex";
+
 	export default {
 		data() {
 			return {
@@ -47,26 +49,26 @@
 						icon: "el-icon-s-tools",
 						index: "system_manage",
 						title: "系统管理",
-						show: true,
+						show: false,
 						subs: [
 							{
 								index: "user_manage",
 								title: "用户管理",
-								show: true
-							},{
+								show: false
+							}, {
 								index: "group_manage",
 								title: "用户组管理",
-								show: true
+								show: false
 							},
 							{
 								index: "role_manage",
 								title: "角色管理",
-								show: true
+								show: false
 							},
 							{
-								index: "permission_manage",
+								index: "access_manage",
 								title: "权限管理",
-								show: true
+								show: false
 							}
 						]
 					}
@@ -76,7 +78,10 @@
 		computed: {
 			onRoutes() {
 				return this.$route.path.replace("/", "");
-			}
+			},
+			...mapGetters({
+				user: 'getUser'
+			})
 		},
 		created() {
 			// 通过 Event Bus 进行组件间通信，来折叠侧边栏
@@ -84,23 +89,24 @@
 				this.collapse = msg;
 			});
 
-			// let items = [];
-			// for (const item of this.items) {
-			// 	items = items.concat(item);
-			// 	if (item.subs) {
-			// 		items = items.concat(item.subs);
-			// 	}
-			// }
-			// let meuns = [];
-			// for (const role of this.$store.getters.getUser.roles) {
-			// 	meuns = meuns.concat(role.menus);
-			// }
-			// let intersection = this.$lodash.intersectionWith(items, meuns, (a, b) => {
-			// 	return a.title === b.menuname;
-			// });
-			// intersection.forEach((item) => {
-			// 	item.show = true;
-			// });
+			let items = [];
+			for (const item of this.items) {
+				items = items.concat(item);
+				if (item.subs) {
+					items = items.concat(item.subs);
+				}
+			}
+
+			let intersection = this.$lodash.intersectionWith(items, this.user.accesses, (a, b) => {
+				if (b.menu) {
+					return a.title === b.menu.name;
+				} else {
+					return false;
+				}
+			});
+			intersection.forEach((item) => {
+				item.show = true;
+			});
 		}
 	};
 </script>

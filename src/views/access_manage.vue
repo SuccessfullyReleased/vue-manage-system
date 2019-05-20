@@ -33,7 +33,7 @@
 	import treeDao from "@components/tree"
 
 	export default {
-		name: "permission_manage",
+		name: "access_manage",
 		data() {
 			return {
 				user: null,

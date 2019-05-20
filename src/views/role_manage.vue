@@ -565,7 +565,7 @@
 			},
 
 			handleMenu(rid) {
-				this.$router.push({name: "permission_manage", params: {rid: rid}});
+				this.$router.push({name: "access_manage", params: {rid: rid}});
 			}
 		}
 	}

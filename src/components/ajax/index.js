@@ -97,6 +97,7 @@ function setVueInstance(VueInstance) {
 		return response;
 	}, function (error) {
 		if (error.response.status === 401) {
+			console.error("用户token已失效,3秒钟后将回到登录页面");
 			requestOptions.Vue.$message.error("用户token已失效,3秒钟后将回到登录页面");
 			cookies.remove("token");
 			setInterval(function () {
