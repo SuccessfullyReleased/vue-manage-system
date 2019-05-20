@@ -15,12 +15,6 @@ let requestOptions = {
 	path: '',//默认路径
 	params: null,//请求参数
 	data: null,//主体数据
-	// contentType: {
-	// 	get: "form",
-	// 	post: 'json',
-	// 	put: 'json',
-	// 	delete: 'json'
-	// },
 	async: true,
 	auth: true,
 	headers: null,
@@ -46,7 +40,6 @@ function filter(options) {
 	options.success = judge(options.success, requestOptions.success);
 	options.error = judge(options.error, requestOptions.error);
 	options.method = judge(options.method, requestOptions.method);
-	// options.contentType = judge(options.contentType,requestOptions.contentType[options.method.toLocaleLowerCase()]);
 	if (!options.url) {
 		let root = options.root || requestOptions.root;
 		delete options.root;
@@ -80,11 +73,6 @@ let method = {
 	DELETE: "delete"
 };
 
-// let contentType = {
-// 	form: "form",
-// 	json: "json"
-// };
-
 
 function install(Vue) {
 	Vue.prototype.$ajax = this;
@@ -101,7 +89,7 @@ function setVueInstance(VueInstance) {
 			requestOptions.Vue.$message.error("用户token已失效,3秒钟后将回到登录页面");
 			cookies.remove("token");
 			setInterval(function () {
-				requestOptions.Vue.$router.push('/login');
+				requestOptions.Vue.$router.push('/');
 			}, 3000);
 		}
 		return error;
