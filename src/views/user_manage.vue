@@ -78,7 +78,7 @@
 				@select="selectChange"
 				@select-all="selectAll"
 				ref="usersTable"
-				:header-cell-style="handHeaderStyle"
+				:header-cell-style="handleHeaderStyle"
 			>
 				<el-table-column
 					type="selection"
@@ -92,7 +92,7 @@
 				>
 					<template slot-scope="scope">
 						<div class="user-avator">
-							<img :src="avatorBaseUrl+'resource/'+scope.row.avator"
+							<img :src="avatorBaseUrl+scope.row.avator"
 									 alt="demo">
 						</div>
 					</template>
@@ -270,7 +270,7 @@
 		name: "user_manage",
 		data() {
 			return {
-				avatorBaseUrl: this.$httpUrl.remoteBaseUrl,
+				avatorBaseUrl: this.$httpUrl.rbac + "avators/",
 				user: null,
 				operationControl: {
 					select: false,
@@ -478,7 +478,7 @@
 			},
 			requireData() {
 				let options = {
-					url: '/api/users',
+					url: '/rbac/users',
 					method: this.$ajax.method.GET,
 					params: {
 						keyColumn: null,
@@ -567,7 +567,7 @@
 				}
 				this.tableControl.selection = selection;
 			},
-			handHeaderStyle() {
+			handleHeaderStyle() {
 				return {
 					"text-align": "center",
 					"color": "black",
@@ -598,7 +598,7 @@
 				if (this.editControl.isPlus) {
 					if (isUpdate) {
 						let options = {
-							url: "/api/user",
+							url: "/rbac/user",
 							method: this.$ajax.method.POST,
 							data: params,
 							success: () => {
@@ -617,7 +617,7 @@
 				} else {
 					if (isUpdate) {
 						let options = {
-							url: "/api/user",
+							url: "/rbac/user",
 							method: this.$ajax.method.PUT,
 							data: params,
 							success: () => {
@@ -721,7 +721,7 @@
 			confirmDelete() {
 				if (this.deleteControl.isLarge) {
 					let options = {
-						url: '/api/users',
+						url: '/rbac/users',
 						method: this.$ajax.method.DELETE,
 						data: this.deleteControl.deleteRows,
 						success: () => {
@@ -738,7 +738,7 @@
 					this.$ajax.request(options);
 				} else {
 					this.$ajax.request({
-						url: `/api/user/uid/${this.deleteControl.deleteRow.uid}`,
+						url: `/rbac/user/uid/${this.deleteControl.deleteRow.uid}`,
 						method: this.$ajax.method.DELETE,
 						success: () => {
 							this.setDeleteStatus(false, false, null, null, null);

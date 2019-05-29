@@ -35,7 +35,7 @@
 				:headers="headers"
 				:action="address"
 				:data="{uid:form.uid}"
-				:show-file-list="false"
+				show-file-list="false"
 				list-type="picture"
 				:on-success="uploadImageSuccess">
 				<img v-if="form.avator" :src="avatorBaseUrl+form.avator" class="user-avator" alt="编辑头像">
@@ -52,7 +52,7 @@
 		data() {
 			return {
 				headers: null,
-				address: "/api/user/avator",
+				address: "/rbac/user/avator",
 				avatorBaseUrl: this.$httpUrl.remoteBaseUrl + "resource/",
 				form: {
 					uid: null,
@@ -114,7 +114,7 @@
 			isExistUsername(rule, value, callback) {
 				if (this.form.username !== this.user.username) {
 					let options = {
-						url: '/api/user/count',
+						url: '/rbac/user/count',
 						method: this.$ajax.method.GET,
 						params: {
 							model: {
@@ -153,7 +153,7 @@
 							}
 						});
 						let options = {
-							url: "/api/user",
+							url: "/rbac/user",
 							method: this.$ajax.method.PUT,
 							data: data,
 							success: () => {
@@ -176,7 +176,7 @@
 			uploadImageSuccess() {
 				this.$message.success('头像更新成功');
 				let options = {
-					url: `/api/user/uid/${this.form.uid}`,
+					url: `/rbac/user/uid/${this.form.uid}`,
 					method: this.$ajax.method.GET,
 					success: (res) => {
 						this.user = res.data;

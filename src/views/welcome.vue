@@ -79,7 +79,7 @@
 		name: "welcome",
 		data() {
 			return {
-				avatorBaseUrl: this.$httpUrl.remoteBaseUrl + "resource/"
+				avatorBaseUrl: this.$httpUrl.rbac + "avators/"
 			}
 		},
 		computed: {

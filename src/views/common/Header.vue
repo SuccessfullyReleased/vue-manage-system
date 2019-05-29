@@ -45,7 +45,7 @@
 	export default {
 		data() {
 			return {
-				avatorBaseUrl: this.$httpUrl.remoteBaseUrl + "resource/",
+				avatorBaseUrl: this.$httpUrl.rbac + "avators/",
 				collapse: false,
 				fullscreen: false,
 				message: 2

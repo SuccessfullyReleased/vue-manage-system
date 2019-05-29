@@ -48,8 +48,8 @@
 				@sort-change='sortChange'
 				@select="selectChange"
 				@select-all="selectAll"
-				ref="rolesTable"
-				:header-cell-style="handHeaderStyle"
+				ref="notesTable"
+				:header-cell-style="handleHeaderStyle"
 			>
 				<el-table-column
 					type="selection"
@@ -58,23 +58,29 @@
 				</el-table-column>
 				<el-table-column
 					sortable='custom'
-					prop="rid"
-					label="用户ID"
-					align="center"
-					width="96"
-				></el-table-column>
-				<el-table-column
-					sortable='custom'
-					prop="rolename"
-					label="角色名"
+					prop="title"
+					label="标题"
 					align="center"
 				>
 					<template slot-scope="scope">
 						<el-input
 							v-show="scope.row.editable"
-							v-model="scope.row.rolename"
+							v-model="scope.row.title"
 						></el-input>
-						<span v-show="!scope.row.editable">{{scope.row.rolename}}</span>
+						<span v-show="!scope.row.editable">{{scope.row.title}}</span>
+					</template>
+				</el-table-column><el-table-column
+					sortable='custom'
+					prop="author"
+					label="楼主"
+					align="center"
+				>
+					<template slot-scope="scope">
+						<el-input
+							v-show="scope.row.editable"
+							v-model="scope.row.author"
+						></el-input>
+						<span v-show="!scope.row.editable">{{scope.row.author}}</span>
 					</template>
 				</el-table-column>
 				<el-table-column
@@ -89,26 +95,6 @@
 							v-model="scope.row.note"
 						></el-input>
 						<span v-show="!scope.row.editable">{{scope.row.note}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column
-					sortable='custom'
-					prop="parent"
-					label="权限继承"
-					align="center"
-				>
-					<template slot-scope="scope">
-						<el-select
-							v-show="scope.row.editable" v-model="scope.row.parent" value="">
-							<el-option
-								v-for="item in searchControl.roleOptions"
-								:key="item.rid"
-								:label="item.rolename"
-								:value="item.rid"
-								:disabled="item.disabled">
-							</el-option>
-						</el-select>
-						<span v-show="!scope.row.editable">{{roleToText(scope.row.parent)}}</span>
 					</template>
 				</el-table-column>
 				<el-table-column label="操作" align="center">
@@ -182,14 +168,14 @@
 				},
 				searchControl: {
 					options: [{
-						value: 'rid',
-						label: '角色ID'
+						value: 'title',
+						label: '标题'
 					}, {
-						value: 'rolename',
-						label: '角色名称'
+						value: 'author',
+						label: '楼主'
 					}, {
-						value: 'note',
-						label: '角色描述'
+						value: 'time',
+						label: '时间'
 					}],
 					roleOptions: null,
 					roleTree: null,
@@ -373,7 +359,7 @@
 				}
 				this.tableControl.selection = selection;
 			},
-			handHeaderStyle() {
+			handleHeaderStyle() {
 				return {
 					"text-align": "center",
 					"color": "black",

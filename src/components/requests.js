@@ -7,18 +7,18 @@ function getUserById(uid, resolve, reject) {
 	return {
 		name: "checkToken",
 		method: ajax.method.GET,
-		url: "/api/user/token",
+		url: "/rbac/user/token",
 		success: () => {
 			ajax.request({
 				name: "resetUser",
-				url: `/api/user/uid/${uid}`,
+				url: `/rbac/user/uid/${uid}`,
 				method: ajax.method.GET,
 				success: (res) => {
 					if (res.status) {
 						let user = res.data;
 						if (user.userGroups && user.userGroups.length > 0) {
 							ajax.request({
-								url: "/api/userGroups/roles",
+								url: "/rbac/userGroups/roles",
 								method: ajax.method.POST,
 								data: user.userGroups,
 								success: res => {
@@ -27,7 +27,7 @@ function getUserById(uid, resolve, reject) {
 									user.roleTree = treeDao.createRoleTree(user.total_roles);
 									if (user.roles.length > 0 || user.const_roles.length > 0) {
 										ajax.request({
-											url: "/api/roles/accesses",
+											url: "/rbac/roles/accesses",
 											method: ajax.method.POST,
 											data: user.total_roles,
 											success: res => {
@@ -50,7 +50,7 @@ function getUserById(uid, resolve, reject) {
 							user.roleTree = treeDao.createRoleTree(user.total_roles);
 							if (user.roles.length > 0 || user.const_roles.length > 0) {
 								ajax.request({
-									url: "/api/roles/accesses",
+									url: "/rbac/roles/accesses",
 									method: ajax.method.POST,
 									data: user.total_roles,
 									success: res => {
@@ -85,7 +85,7 @@ function getUserByUsername(username, resolve, reject) {
 	return {
 		name: "createToken",
 		method: ajax.method.POST,
-		url: "/api/user/token",
+		url: "/rbac/user/token",
 		params: {
 			username: username
 		},
@@ -95,7 +95,7 @@ function getUserByUsername(username, resolve, reject) {
 			}
 			ajax.request({
 				name: "getUser",
-				url: "/api/user",
+				url: "/rbac/user",
 				method: ajax.method.GET,
 				params: {
 					model: {
@@ -107,7 +107,7 @@ function getUserByUsername(username, resolve, reject) {
 						let user = res.data;
 						if (user.userGroups && user.userGroups.length > 0) {
 							ajax.request({
-								url: "/api/userGroups/roles",
+								url: "/rbac/userGroups/roles",
 								method: ajax.method.POST,
 								data: user.userGroups,
 								success: res => {
@@ -116,11 +116,11 @@ function getUserByUsername(username, resolve, reject) {
 									user.roleTree = treeDao.createRoleTree(user.total_roles);
 									if (user.roles.length > 0 || user.const_roles.length > 0) {
 										ajax.request({
-											url: "/api/roles/accesses",
+											url: "/rbac/roles/accesses",
 											method: ajax.method.POST,
 											data: user.total_roles,
 											success: res => {
-												user.accesses = res.data;
+												user.accesses = _.uniqBy(res.data, 'aid');
 												resolve(user)
 											},
 											error: err => {
@@ -139,7 +139,7 @@ function getUserByUsername(username, resolve, reject) {
 							user.roleTree = treeDao.createRoleTree(user.total_roles);
 							if (user.roles.length > 0 || user.const_roles.length > 0) {
 								ajax.request({
-									url: "/api/roles/accesses",
+									url: "/rbac/roles/accesses",
 									method: ajax.method.POST,
 									data: user.total_roles,
 									success: res => {
@@ -172,7 +172,7 @@ function getUserByUsername(username, resolve, reject) {
 
 function getUserGroupOptions(resolve, reject) {
 	return {
-		url: "/api/userGroups",
+		url: "/rbac/userGroups",
 		method: ajax.method.GET,
 		success: res => {
 			resolve(res.data);
@@ -185,7 +185,7 @@ function getUserGroupOptions(resolve, reject) {
 
 function getRoleOptions(resolve, reject) {
 	return {
-		url: "/api/roles",
+		url: "/rbac/roles",
 		method: ajax.method.GET,
 		success: res => {
 			resolve(res.data);
@@ -202,7 +202,7 @@ function getRoleTree(roleOptions) {
 
 function getAccessOptions(resolve, reject) {
 	return {
-		url: `/api/accesses`,
+		url: `/rbac/accesses`,
 		method: ajax.method.GET,
 		success: res => {
 			resolve(res.data);

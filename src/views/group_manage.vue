@@ -49,7 +49,7 @@
 				@select="selectChange"
 				@select-all="selectAll"
 				ref="groupsTable"
-				:header-cell-style="handHeaderStyle"
+				:header-cell-style="handleHeaderStyle"
 			>
 				<el-table-column
 					type="selection"
@@ -306,7 +306,7 @@
 			},
 			requireData() {
 				let options = {
-					url: '/api/userGroups',
+					url: '/rbac/userGroups',
 					method: this.$ajax.method.GET,
 					params: {
 						keyColumn: null,
@@ -392,7 +392,7 @@
 				}
 				this.tableControl.selection = selection;
 			},
-			handHeaderStyle() {
+			handleHeaderStyle() {
 				return {
 					"text-align": "center",
 					"color": "black",
@@ -423,7 +423,7 @@
 				if (this.editControl.isPlus) {
 					if (isUpdate) {
 						let options = {
-							url: "/api/userGroup",
+							url: "/rbac/userGroup",
 							method: this.$ajax.method.POST,
 							data: params,
 							success: () => {
@@ -443,7 +443,7 @@
 
 					if (isUpdate) {
 						let options = {
-							url: "/api/userGroup",
+							url: "/rbac/userGroup",
 							method: this.$ajax.method.PUT,
 							data: params,
 							success: () => {
@@ -533,7 +533,7 @@
 			confirmDelete() {
 				if (this.deleteControl.isLarge) {
 					let options = {
-						url: '/api/userGroups',
+						url: '/rbac/userGroups',
 						method: this.$ajax.method.DELETE,
 						data: this.deleteControl.deleteRows,
 						success: () => {
@@ -550,7 +550,7 @@
 					this.$ajax.request(options);
 				} else {
 					let options = {
-						url: `/api/userGroup/ugid/${this.deleteControl.deleteRow.ugid}`,
+						url: `/rbac/userGroup/ugid/${this.deleteControl.deleteRow.ugid}`,
 						method: this.$ajax.method.DELETE,
 						success: () => {
 							this.setDeleteStatus(false, false, null, null, null);

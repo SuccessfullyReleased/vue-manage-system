@@ -44,8 +44,7 @@
 						index: "welcome",
 						title: "欢迎界面",
 						show: true
-					},
-					{
+					}, {
 						icon: "el-icon-s-tools",
 						index: "system_manage",
 						title: "系统管理",
@@ -68,6 +67,22 @@
 							{
 								index: "access_manage",
 								title: "权限管理",
+								show: false
+							}
+						]
+					}, {
+						icon: "el-icon-s-comment",
+						index: "content_manage",
+						title: "内容管理",
+						show: false,
+						subs: [
+							{
+								index: "material_manage",
+								title: "材料管理",
+								show: false
+							}, {
+								index: "note_manage",
+								title: "贴吧管理",
 								show: false
 							}
 						]

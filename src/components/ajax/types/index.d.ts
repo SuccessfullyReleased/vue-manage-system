@@ -1,6 +1,7 @@
 import Vue from 'vue';
 import './vue';
 import {loadingOptions} from "../../loading/types";
+import {AxiosStatic} from "axios";
 
 
 export function install(vue: typeof Vue): void;
@@ -36,6 +37,8 @@ export declare interface ajax {
 	setVueInstance(VueInstance: object): void
 
 	getVueInstance(): object
+
+	getAxios(): AxiosStatic
 
 	setCookiesInstance(Cookies: object): void
 

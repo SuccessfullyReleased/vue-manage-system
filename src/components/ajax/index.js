@@ -25,7 +25,7 @@ let requestOptions = {
 	loadingOptions: {
 		loading: false
 	},
-	dev: false
+	dev: true
 };
 
 function judge(o, init) {
@@ -100,6 +100,10 @@ function getVueInstance() {
 	return requestOptions.Vue;
 }
 
+function getAxios() {
+	return requestOptions.Axios;
+}
+
 function setCookiesInstance(Cookies) {
 	requestOptions.Cookies = Cookies;
 }
@@ -110,7 +114,7 @@ async function async_execute(options) {
 		url: options.url,
 		headers: options.headers,
 		params: options.params,
-		data: options.data
+		data: options.data,
 	})
 }
 
@@ -120,7 +124,7 @@ function execute(options) {
 		url: options.url,
 		headers: options.headers,
 		params: options.params,
-		data: options.data
+		data: options.data,
 	})
 }
 
@@ -216,5 +220,5 @@ function allrequest(options, total_options) {
 
 
 export default {
-	method, install, setVueInstance, getVueInstance, setCookiesInstance, request, allrequest
+	method, install, setVueInstance, getVueInstance, getAxios, setCookiesInstance, request, allrequest
 }

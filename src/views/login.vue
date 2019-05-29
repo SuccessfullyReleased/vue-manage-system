@@ -51,7 +51,7 @@
 			if (token) {
 				this.$ajax.request({
 					method: this.$ajax.method.GET,
-					url: "/api/user/token",
+					url: "/rbac/user/token",
 					success: res => {
 						let username = res.headers.current_user;
 						if (username) {
@@ -75,7 +75,7 @@
 		methods: {
 			isExistUsername(rule, value, callback) {
 				let options = {
-					url: '/api/user/count',
+					url: '/rbac/user/count',
 					method: this.$ajax.method.GET,
 					params: {
 						model: {
@@ -103,7 +103,7 @@
 				this.$refs[formName].validate((valid) => {
 					if (valid) {
 						let options = {
-							url: "/api/user/count",
+							url: "/rbac/user/count",
 							method: this.$ajax.method.GET,
 							params: {
 								model: {

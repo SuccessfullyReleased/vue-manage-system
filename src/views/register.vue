@@ -71,7 +71,7 @@
 		methods: {
 			isExistUsername(rule, value, callback) {
 				let options = {
-					url: '/api/user/count',
+					url: '/rbac/user/count',
 					method: this.$ajax.method.GET,
 					params: {
 						model: {
@@ -99,7 +99,7 @@
 				this.$refs['form'].validate((valid) => {
 					if (valid) {
 						let options = {
-							url: '/api/user',
+							url: '/rbac/user',
 							method: 'POST',
 							data: {
 								username: this.form.username,

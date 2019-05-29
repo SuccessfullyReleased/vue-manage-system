@@ -41,7 +41,7 @@ router.beforeEach((to, from, next) => {
 	} else if (to.meta.permission) {
 		ajax.request({
 			method: ajax.method.GET,
-			url: "/api/user/token",
+			url: "/rbac/user/token",
 			dev: false,
 			loadingOptions: {
 				loading: true,

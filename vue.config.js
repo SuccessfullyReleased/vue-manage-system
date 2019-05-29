@@ -10,22 +10,30 @@ module.exports = {
 		https: false,
 		hotOnly: false,
 		proxy: {
-			'/api': {
-				target: "https://localhost:5000/rbac/",
+			'/rbac': {
+				target: "http://localhost:9500/rbac/",
 				ws: true,
 				changeOrigin: true,
 				pathRewrite: {
-					"^/api": ""
+					"^/rbac": ""
+				}
+			},
+			'/cms': {
+				target: "http://localhost:9501/cms/",
+				ws: true,
+				changeOrigin: true,
+				pathRewrite: {
+					"^/cms": ""
 				}
 			}
 		}
 	},
-	chainWebpack: (config)=>{
+	chainWebpack: (config) => {
 		config.resolve.alias
 			.set('@', resolve('src'))
-			.set('@components',resolve('src/components'))
-			.set('@views',resolve('src/views'))
-			.set('@router',resolve('src/router'))
-			.set('@public',resolve('public'))
+			.set('@components', resolve('src/components'))
+			.set('@views', resolve('src/views'))
+			.set('@router', resolve('src/router'))
+			.set('@public', resolve('public'))
 	}
 };

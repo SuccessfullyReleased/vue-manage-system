@@ -124,7 +124,7 @@ less | CSS 预处理语言 | 3.0.4 |  [http://lesscss.cn/](http://lesscss.cn/)
 - [group_manage](src/views/group_manage.vue) （进入该页面需要验证权限）
     1. 实现用户组基本的 ```CRUD``` 操作
     2. 实现 用户组+角色 的 ```CRUD``` 操作
-- [role_manage](src/views/role_manage.vue) （进入该页面需要验证权限）
+- [role_manage](src/views/note_manage.vue) （进入该页面需要验证权限）
     1. 实现角色基本的 ```CRUD``` 操作
     2. 可点击权限进入权限页面
 - [access_manage](src/views/access_manage.vue) （进入该页面需要验证权限）
@@ -160,7 +160,7 @@ less | CSS 预处理语言 | 3.0.4 |  [http://lesscss.cn/](http://lesscss.cn/)
         - [main.js](src/main.js)  
         用户验证通过后，如果该用户没有进入某个菜单的权限，任何获取该页面的方法都将返回 [403](src/views/403.vue)
     - 操作验证：
-        - [user_manage](src/views/user_manage.vue) | [group_manage](src/views/group_manage.vue) | [role_manage](src/views/role_manage.vue) | [access_manage](src/views/access_manage.vue)  
+        - [user_manage](src/views/user_manage.vue) | [group_manage](src/views/group_manage.vue) | [role_manage](src/views/note_manage.vue) | [access_manage](src/views/access_manage.vue)  
         如果该用户没有某个操作的权限，该操作所对应的页面元素将被禁用
 
 ## 未完成扩展：

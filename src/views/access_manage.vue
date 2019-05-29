@@ -179,7 +179,7 @@
 					params.accesses = aids.map(aid => ({aid: aid}));
 
 					let options = {
-						url: "/api/role",
+						url: "/rbac/role",
 						method: this.$ajax.method.PUT,
 						data: params,
 						success: () => {
@@ -205,7 +205,7 @@
 
 			requireRoleData() {
 				let options = {
-					url: `/api/role`,
+					url: `/rbac/role`,
 					method: this.$ajax.method.GET,
 					params: {
 						model: {
