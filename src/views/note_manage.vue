@@ -12,9 +12,21 @@
 				</el-select>
 				<el-input
 					v-model="searchControl.keyWord"
+					v-if="searchControl.choice!=='time'"
 					class="input_25 mgn_20"
 					placeholder="筛选关键词"
 				></el-input>
+
+				<el-date-picker
+					v-model="searchControl.keyWord"
+					v-else
+					class="mgn_20"
+					type="datetimerange"
+					range-separator="至"
+					start-placeholder="开始日期"
+					end-placeholder="结束日期">
+				</el-date-picker>
+
 				<el-button
 					class="mgn_20"
 					type="primary"
@@ -25,146 +37,82 @@
 				</el-button>
 				<el-button
 					class="mgn_20"
-					icon="el-icon-plus"
+					icon="el-icon-edit"
 					@click="handleInsert"
 					:disabled="operationControl.insert||editControl.editable"
-				>添加
-				</el-button>
-				<el-button
-					class="mgn_20"
-					type="danger"
-					icon="el-icon-delete"
-					:disabled="operationControl.delete"
-					@click="handleLargeDelete"
-				>批量删除
+				>发帖
 				</el-button>
 			</div>
-
-			<el-table
-				class="el-table-font"
-				:data="pageData"
-				border
-				stripe
-				@sort-change='sortChange'
-				@select="selectChange"
-				@select-all="selectAll"
-				ref="notesTable"
-				:header-cell-style="handleHeaderStyle"
-			>
-				<el-table-column
-					type="selection"
-					align="center"
-					width="36">
-				</el-table-column>
-				<el-table-column
-					sortable='custom'
-					prop="title"
-					label="标题"
-					align="center"
-				>
-					<template slot-scope="scope">
-						<el-input
-							v-show="scope.row.editable"
-							v-model="scope.row.title"
-						></el-input>
-						<span v-show="!scope.row.editable">{{scope.row.title}}</span>
-					</template>
-				</el-table-column><el-table-column
-					sortable='custom'
-					prop="author"
-					label="楼主"
-					align="center"
-				>
-					<template slot-scope="scope">
-						<el-input
-							v-show="scope.row.editable"
-							v-model="scope.row.author"
-						></el-input>
-						<span v-show="!scope.row.editable">{{scope.row.author}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column
-					sortable='custom'
-					prop="note"
-					label="角色描述"
-					align="center"
-				>
-					<template slot-scope="scope">
-						<el-input
-							v-show="scope.row.editable"
-							v-model="scope.row.note"
-						></el-input>
-						<span v-show="!scope.row.editable">{{scope.row.note}}</span>
-					</template>
-				</el-table-column>
-				<el-table-column label="操作" align="center">
-					<template slot-scope="scope">
-						<div v-show="scope.row.editable">
-							<el-button v-show="scope.row.editable" type="text" icon="el-icon-check" class="save"
-												 @click="handleSave(scope.$index, scope.row)">
-								保存
-							</el-button>
-							<el-button v-show="scope.row.editable" type="text" icon="el-icon-close" class="edit"
-												 @click="handleClose(scope.$index, scope.row)">
-								取消
-							</el-button>
-						</div>
-						<div v-show="!scope.row.editable">
-							<el-button type="text" icon="el-icon-share" class="save" @click="handleMenu(scope.row.rid)">
-								权限
-							</el-button>
-							<el-button type="text" icon="el-icon-edit" class="edit"
-												 :disabled="operationControl.update||editControl.editable"
-												 @click="handleEdit(scope.$index, scope.row)">
-								编辑
-							</el-button>
-							<el-button type="text" icon="el-icon-delete" class="delete" :disabled="operationControl.delete"
-												 @click="handleDelete(scope.$index, scope.row)">
-								删除
-							</el-button>
-						</div>
-					</template>
-				</el-table-column>
-			</el-table>
-
-			<div class="pagination">
-				<el-pagination
-					:page-sizes="[5, 10, 25]"
-					:page-size.sync="pageControl.pageSize"
-					layout="sizes, prev, pager, next, jumper"
-					:total="pageControl.totalNum"
-					:current-page.sync="pageControl.currentPage"
-					hide-on-single-page
-				>
-				</el-pagination>
-			</div>
-
+			<el-collapse class="collapse" accordion @change="handleCollapseChange">
+				<template v-for="note in data">
+					<el-collapse-item :key="note.nid" :name="String(note.nid)">
+						<template slot="title">
+							<div class="info">
+								<div class="title">
+									<el-link type="primary" :underline="false" @click="handleFloor(note)">{{note.title}}</el-link>
+								</div>
+								<div class="btn">
+									<el-button
+										v-show="canDelete(note.author)"
+										icon="el-icon-delete"
+										type="danger"
+										@click.stop="handleDeleteNote(note)"
+									>删除
+									</el-button>
+								</div>
+								<div class="text">{{note.time}}</div>
+								<div class="text">{{note.author}}</div>
+							</div>
+						</template>
+						<div class="ql-editor" v-html="note.floors[0].contentText"></div>
+					</el-collapse-item>
+				</template>
+			</el-collapse>
 		</div>
 
-		<el-dialog title="提示" :visible.sync="deleteControl.deletable" width="300px" center>
-			<div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+		<el-dialog class="edit-dialog" title="发帖" :visible.sync="editControl.editable"
+							 :close-on-click-modal="false" width="840px" center>
+			<div>
+				<el-input class="mgnB_20" type="text" maxlength="50" show-word-limit
+									v-model="editControl.temp.title" placeholder="添加标题">
+					<template slot="prepend">标题</template>
+				</el-input>
+				<quill-editor ref="editor"
+											v-model="editControl.temp.contentText"
+											:options="editControl.editorOptions"
+				>
+				</quill-editor>
+			</div>
 			<span slot="footer" class="dialog-footer">
-                <el-button @click="deleteControl.deletable = false">取 消</el-button>
-                <el-button type="primary" @click="confirmDelete">确 定</el-button>
-            </span>
+				<el-button @click="handleClose">取 消</el-button>
+        <el-button type="primary" @click="handleSave">确 定</el-button>
+			</span>
 		</el-dialog>
 
+		<el-dialog title="删除提示" :visible.sync="deleteControl.deletable" width="300px" center>
+			<div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
+			<span slot="footer">
+                <el-button @click="cancelDelete">取 消</el-button>
+                <el-button type="danger" @click="confirmDelete">确 定</el-button>
+            </span>
+		</el-dialog>
 	</div>
 </template>
 
 <script>
+	import Quill from 'quill';
+	import ImageResize from 'quill-image-resize-module'
 	import treeDao from "@components/tree"
 
+	Quill.register('modules/imageResize', ImageResize);
+
 	export default {
-		name: "role_manage",
+		name: "note_manage",
 		data() {
 			return {
 				user: null,
 				operationControl: {
-					select: false,
-					insert: false,
-					delete: false,
-					update: false
+					delete: false
 				},
 				searchControl: {
 					options: [{
@@ -182,29 +130,50 @@
 					choice: null,
 					keyWord: null,
 				},
-				tableControl: {
-					tableData: [],
-					prop: null,
-					order: null,
-					selection: null
-				},
+				data: null,
 				editControl: {
+					editorOptions: {
+						modules: {
+							toolbar: [
+								['bold', 'italic', 'underline', 'strike'],
+								['blockquote', 'code-block'],
+								[{'header': 1}, {'header': 2}],
+								[{'list': 'ordered'}, {'list': 'bullet'}],
+								[{'script': 'sub'}, {'script': 'super'}],
+								[{'indent': '-1'}, {'indent': '+1'}],
+								[{'direction': 'rtl'}],
+								[{'size': ['small', false, 'large', 'huge']}],
+								[{'header': [1, 2, 3, 4, 5, 6, false]}],
+								[{'font': []}],
+								[{'color': []}, {'background': []}],
+								[{'align': []}],
+								['clean'],
+								['link', 'image']
+							],
+							history: {
+								delay: 1000,
+								maxStack: 50,
+								userOnly: false
+							},
+							imageResize: {
+								displayStyles: {
+									backgroundColor: 'black',
+									border: 'none',
+									color: 'white'
+								},
+								modules: ['Resize', 'DisplaySize', 'Toolbar']
+							}
+						}
+					},
 					editable: false,
-					isPlus: false,
-					index: null,
-					temp: null
+					temp: {
+						title: null,
+						contentText: null
+					}
 				},
 				deleteControl: {
 					deletable: false,
-					isLarge: false,
-					index: null,
-					deleteRow: null,
-					deleteRows: null
-				},
-				pageControl: {
-					totalNum: 0,
-					currentPage: 1,
-					pageSize: 5
+					nid: null
 				}
 			}
 		},
@@ -221,28 +190,13 @@
 		},
 		mounted() {
 			this.user = this.$store.getters.getUser;
-			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "role_select") === -1) {
-				this.operationControl.select = true;
-			}
-			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "role_insert") === -1) {
-				this.operationControl.insert = true;
-			}
-			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "role_delete") === -1) {
+			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "note_delete") === -1) {
 				this.operationControl.delete = true;
-			}
-			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "role_update") === -1) {
-				this.operationControl.update = true;
 			}
 
 			this.searchControl.roleOptions = this.$store.getters.getRoleOptions;
-			this.searchControl.roleOptions.forEach((value) => {
-				if (this.$lodash.findIndex(this.user.total_roles, role => role.rid === value.rid) !== -1) {
-					this.$set(value, "disabled", false);
-				} else {
-					this.$set(value, "disabled", true);
-				}
-			});
 			this.searchControl.roleTree = this.$store.getters.getRoleTree;
+			this.requireData();
 		},
 		beforeRouteLeave(to, from, next) {
 			if (this.editControl.editable) {
@@ -251,7 +205,7 @@
 					cancelButtonText: '取消',
 					type: 'warning'
 				}).then(() => {
-					this.handleClose(null, this.$refs.rolesTable.data[this.getRowIndex(this.editControl.index)]);
+					this.handleClose();
 					next();
 				}).catch(() => {
 					next(false);
@@ -261,45 +215,21 @@
 			}
 		},
 		methods: {
-			roleToText(parent) {
-				return parent && this.$lodash.find(this.searchControl.roleOptions, role => role.rid === parent).rolename;
-			},
 			handleChoiceChange() {
 				this.searchControl.keyWord = null;
 			},
-			getIndex(rowIndex) {
-				return (this.pageControl.currentPage - 1) * this.pageControl.pageSize + rowIndex;
-			},
-			getRowIndex(index) {
-				return index % this.pageControl.pageSize;
-			},
-			getPage(index) {
-				return Math.floor(index / this.pageControl.pageSize) + 1;
-			},
-			locatePage(index) {
-				this.pageControl.totalNum = this.tableControl.tableData.length;
-				if (index >= this.pageControl.totalNum) {
-					throw new Error(`Array index : ${index} is out of bounds : ${this.pageControl.totalNum}`);
-				} else {
-					this.pageControl.currentPage = this.getPage(index);
-				}
-			},
 			requireData() {
 				let options = {
-					url: '/api/roles',
+					url: '/cms/notes',
 					method: this.$ajax.method.GET,
 					params: {
 						keyColumn: null,
 						key: null,
-						orderColumn: this.tableControl.prop,
-						order: this.tableControl.order
+						orderColumn: "time",
+						order: "desc"
 					},
 					success: res => {
-						this.tableControl.tableData = res.data;
-						this.tableControl.tableData.forEach((value, index, array) => {
-							this.$set(value, "editable", false);
-						});
-						this.pageControl.totalNum = this.tableControl.tableData.length;
+						this.data = res.data;
 					},
 					loadingOptions: {
 						loading: true,
@@ -309,29 +239,28 @@
 				};
 				if (this.searchControl.choice && this.searchControl.keyWord) {
 					options.params.keyColumn = this.searchControl.choice;
-					options.params.key = this.searchControl.keyWord;
+					if (options.params.keyColumn === "time") {
+						console.log(this.searchControl.keyWord);
+						options.params.key = `${this.searchControl.keyWord[0].Format("yyyy-MM-dd HH:mm:ss")}~${this.searchControl.keyWord[1].Format("yyyy-MM-dd HH:mm:ss")}`;
+					} else {
+						options.params.key = this.searchControl.keyWord;
+					}
 				}
 				this.$ajax.request(options);
 			},
-			sortChange(column) {
-				if (column.prop == null) {
-					this.tableControl.prop = null;
-				} else {
-					this.tableControl.prop = column.prop;
+			handleCollapseChange(nid) {
+				if (nid) {
+
 				}
-				switch (column.order) {
-					case "ascending":
-						this.tableControl.order = 'asc';
-						break;
-					case "descending":
-						this.tableControl.order = 'desc';
-						break;
-					default:
-						this.tableControl.order = null;
-						break;
-				}
-				this.requireData()
 			},
+			canDelete(author) {
+				if (author === this.user.username) {
+					return true;
+				} else {
+					return !this.operationControl.delete;
+				}
+			},
+
 			isInTree(rid) {
 				let path = treeDao.findNodePath(this.searchControl.roleTree, "rid", rid);
 				for (const rootNode of this.user.roleTree) {
@@ -342,251 +271,165 @@
 				}
 				return false;
 			},
-			selectChange(selection, row) {
-				if (!this.isInTree(row.rid)) {
-					this.$message.warning(`权限不足以删除${row.rolename}`);
-					this.$refs.rolesTable.toggleRowSelection(row, false);
-				} else {
-					this.tableControl.selection = selection;
-				}
-			},
-			selectAll(selection) {
-				for (const row of selection) {
-					if (!this.isInTree(row.rid)) {
-						this.$message.warning(`权限不足以删除${row.rolename}`);
-						this.$refs.rolesTable.toggleRowSelection(row, false);
-					}
-				}
-				this.tableControl.selection = selection;
-			},
-			handleHeaderStyle() {
-				return {
-					"text-align": "center",
-					"color": "black",
-					"font-size": "14px"
-				}
-			},
-			// resetUser() {
-			// 	this.$store.dispatch('resetUser', this.user.uid).then((user) => {
-			// 		this.user = user;
-			// 	}).catch(() => {
-			// 		this.$message.warning("无法重新初始化用户");
-			// 		this.$router.push("/welcome")
-			// 	});
-			// },
-			resetRoleOptions() {
-				this.$store.dispatch('resetRoles').then((roleOptions) => {
-					this.searchControl.roleTree = this.$store.getters.getRoleTree;
-					this.searchControl.roleOptions = roleOptions;
-					this.searchControl.roleOptions.forEach((value) => {
-						if (this.$lodash.findIndex(this.user.total_roles, role => role.rid === value.rid) !== -1) {
-							this.$set(value, "disabled", false);
-						} else {
-							this.$set(value, "disabled", true);
-						}
-					});
-				}).catch(() => {
-					this.$message.warning("无法重新初始化角色");
-					this.$router.push("/welcome")
-				});
-			},
 
-			setEditStatus(editable, isPlus, index, temp) {
+			setEditStatus(editable, temp = null) {
 				this.editControl.editable = editable;
-				this.editControl.isPlus = isPlus;
-				this.editControl.index = index;
-				this.editControl.temp = temp;
+				if (temp) {
+					this.editControl.temp = temp;
+				}
 			},
-			handleSave(index, row) {
-				let params = {};
-				let isUpdate = false;
-				Object.keys(row).forEach((key) => {
-					if (key !== 'editable') {
-						params[key] = row[key];
-						if (row[key] !== this.editControl.temp[key]) {
-							isUpdate = true;
+			handleSave() {
+				let note = {
+					title: this.editControl.temp.title,
+					author: this.user.username,
+					floors: [
+						{
+							contentText: this.editControl.temp.contentText,
+							author: this.user.username,
 						}
+					]
+				};
+				this.$ajax.request({
+					method: this.$ajax.method.POST,
+					url: "/cms/note",
+					data: note,
+					success: () => {
+						this.$message.success("发帖成功");
+						this.requireData();
+						this.setEditStatus(false, {
+							title: null,
+							contentText: null
+						});
+					},
+					error: () => {
+						this.$message.error("发帖失败");
+						this.handleClose();
 					}
-				});
-
-				if (this.editControl.isPlus) {
-					if (isUpdate) {
-						let options = {
-							url: "/api/role",
-							method: this.$ajax.method.POST,
-							data: params,
-							success: () => {
-								this.$message.success('保存成功');
-								this.requireData();
-								row.editable = false;
-								this.setEditStatus(false, false, null, null);
-								this.resetRoleOptions();
-							}
-						};
-						this.$ajax.request(options);
-					} else {
-						this.$message.warning('未填写有效信息');
-						row.editable = false;
-						this.setEditStatus(false, false, null, null);
-					}
-				} else {
-					if (isUpdate) {
-						let options = {
-							url: "/api/role",
-							method: this.$ajax.method.PUT,
-							data: params,
-							success: () => {
-								this.$message.success('保存成功');
-								this.requireData();
-								row.editable = false;
-								this.setEditStatus(false, false, null, null);
-								this.resetRoleOptions();
-							}
-						};
-						this.$ajax.request(options);
-					} else {
-						this.$message.success('未修改');
-						row.editable = false;
-						this.setEditStatus(false, false, null, null);
-					}
-				}
+				})
 			},
-			handleClose(index, row) {
-				row.editable = false;
-				if (this.editControl.isPlus) {
-					this.tableControl.tableData.pop();
-					if (this.tableControl.tableData.length > 0)
-						this.locatePage(this.tableControl.tableData.length - 1);
-				} else {
-					Object.keys(row).forEach((key) => {
-						if (key !== 'editable') {
-							row[key] = this.editControl.temp[key];
-						}
-					});
-				}
-				this.setEditStatus(false, false, null, null);
-			},
-			handleEdit(index, row) {
-				if (!this.isInTree(row.rid)) {
-					this.$message.warning(`权限不足以修改${row.rolename}`);
-					return;
-				}
-				row.editable = true;
-				let params = this.$lodash.omit(row, ['editable']);
-				this.setEditStatus(true, false, this.getIndex(index), params);
+			handleClose() {
+				this.setEditStatus(false);
 			},
 			handleInsert() {
-				this.tableControl.tableData.push({
-					rid: null,
-					rolename: null,
-					note: null,
-					parent: this.user.roleTree[0],
-					editable: true
-				});
-				this.locatePage(this.tableControl.tableData.length - 1);
-				this.setEditStatus(true, true, this.tableControl.tableData.length - 1, {
-					rid: null,
-					rolename: null,
-					note: null,
-					parent: this.user.roleTree[0],
-					editable: true
-				});
+				this.setEditStatus(true);
 			},
 
-			setDeleteStatus(deletable, isLarge, index, deleteRow, deleteRows) {
+
+			setDeleteStatus(deletable, nid) {
 				this.deleteControl.deletable = deletable;
-				this.deleteControl.isLarge = isLarge;
-				this.deleteControl.index = index;
-				this.deleteControl.deleteRow = deleteRow;
-				this.deleteControl.deleteRows = deleteRows;
+				this.deleteControl.nid = nid;
 			},
-			handleDelete(index, row) {
-				if (!this.isInTree(row.rid)) {
-					this.$message.warning(`权限不足以删除${row.rolename}`);
-					this.setDeleteStatus(false, false, null, null, null);
+			handleDeleteNote(note) {
+				if (this.user.username === note.author) {
+					this.setDeleteStatus(true, note.nid);
 				} else {
-					this.setDeleteStatus(true, false, this.getIndex(index), row, null);
+					this.$ajax.request({
+						method: this.$ajax.method.GET,
+						url: "/rbac/user",
+						params: {
+							model: {
+								username: note.author
+							}
+						},
+						success: res => {
+							let roleTree = treeDao.createRoleTree(res.data.roles);
+							let can = true;
+							if (roleTree.length > 0) {
+								for (const role of roleTree) {
+									if (!this.isInTree(role.rid)) {
+										this.$message.warning(`权限不足以删除${note.author}`);
+										can = false;
+										break;
+									}
+								}
+							}
+							if (can) {
+								this.setDeleteStatus(true, note.nid);
+							}
+						}
+					});
 				}
 			},
-			handleLargeDelete() {
-				this.setDeleteStatus(true, true, null, null, this.tableControl.selection);
+			cancelDelete() {
+				this.setDeleteStatus(false, null);
 			},
 			confirmDelete() {
-				if (this.deleteControl.isLarge) {
-					let options = {
-						url: '/api/roles',
-						method: this.$ajax.method.DELETE,
-						data: this.deleteControl.deleteRows,
-						success: () => {
-							this.setDeleteStatus(false, false, null, null, null);
-							this.requireData();
-							this.$message.success('删除成功');
-							this.resetRoleOptions();
-						},
-						error: () => {
-							this.setDeleteStatus(false, false, null, null, null);
-							this.requireData();
-							this.$message.error('删除失败');
-						}
-					};
-					this.$ajax.request(options);
-				} else {
-					let options = {
-						url: `/api/role/rid/${this.deleteControl.deleteRow.rid}`,
-						method: this.$ajax.method.DELETE,
-						success: () => {
-							this.setDeleteStatus(false, false, null, null, null);
-							this.requireData();
-							this.$message.success('删除成功');
-							this.resetRoleOptions();
-						},
-						error: () => {
-							this.setDeleteStatus(false, false, null, null, null);
-							this.requireData();
-							this.$message.error('删除失败');
-						}
-					};
-					this.$ajax.request(options);
-				}
+				this.$ajax.request({
+					method: this.$ajax.method.DELETE,
+					url: `/cms/note/nid/${this.deleteControl.nid}`,
+					success: () => {
+						this.$message.success("删除成功");
+						this.requireData();
+						this.cancelDelete()
+					},
+					error: () => {
+						this.$message.error("删除失败");
+						this.cancelDelete();
+					}
+				})
 			},
 
-			handleMenu(rid) {
-				this.$router.push({name: "access_manage", params: {rid: rid}});
+			handleFloor(note) {
+				this.$router.push({name: "note_content", params: {note: note}});
 			}
 		}
 	}
 </script>
 
-<style scoped>
+<style lang="less" scoped>
+
 	.handle-box {
 		margin-bottom: 20px;
+
+		.input_25 {
+			width: 25%
+		}
+
+		.mgn_20 {
+			margin-left: 20px;
+		}
+
 	}
 
-	.input_25 {
-		width: 25%
+	.collapse {
+
+		.info {
+
+			width: 100%;
+
+			.title {
+				float: left;
+				overflow: hidden;
+				text-overflow: ellipsis;
+				white-space: nowrap;
+
+				font-size: 14px;
+				margin-left: 20px;
+				margin-right: 20px;
+			}
+
+			.btn {
+				float: right;
+				margin-right: 20px;
+				min-width: 150px;
+				text-align: center;
+			}
+
+			.text {
+				float: right;
+				font-size: 14px;
+				margin-right: 20px;
+				min-width: 150px;
+				text-align: center;
+			}
+
+		}
+
 	}
 
-	.mgn_20 {
-		margin-left: 20px;
+	.edit-dialog {
+		.mgnB_20 {
+			margin-bottom: 20px;
+		}
 	}
-
-	.el-table-font {
-		width: 100%;
-		font-size: 14px;
-	}
-
-	.save {
-		color: #67c23a;
-		font-size: 14px;
-	}
-
-	.edit {
-		font-size: 14px;
-	}
-
-	.delete {
-		color: #ff0000;
-		font-size: 14px;
-	}
-
 </style>
