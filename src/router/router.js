@@ -77,13 +77,19 @@ export default new Router({
 					path: '/material_manage',
 					name: 'material_manage',
 					component: () => import("@views/material_manage.vue"),
-					meta: {title: '材料管理', permission: true,}
+					meta: {title: '材料管理'}
 				}, {
 					//贴吧管理界面
 					path: '/note_manage',
 					name: 'note_manage',
 					component: () => import("@views/note_manage.vue"),
-					meta: {title: '贴吧管理', permission: true,}
+					meta: {title: '贴吧管理'}
+				}, {
+					//帖子详情界面
+					path: '/note_content',
+					name: 'note_content',
+					component: () => import("@views/note_content.vue"),
+					meta: {title: '帖子详情'}
 				}
 			]
 		}

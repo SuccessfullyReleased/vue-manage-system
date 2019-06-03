@@ -2,6 +2,8 @@
 
 const resolve = (dir) => require('path').join(__dirname, dir);
 
+const webpack = require('webpack');
+
 module.exports = {
 	publicPath: "vue-manage-system",
 	devServer: {
@@ -35,5 +37,9 @@ module.exports = {
 			.set('@views', resolve('src/views'))
 			.set('@router', resolve('src/router'))
 			.set('@public', resolve('public'))
+		config.plugin('provide').use(webpack.ProvidePlugin, [{
+			'window.Quill': 'quill/dist/quill.js',
+			'Quill': 'quill/dist/quill.js'
+		}]);
 	}
 };

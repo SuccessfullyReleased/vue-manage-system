@@ -74,16 +74,16 @@
 						icon: "el-icon-s-comment",
 						index: "content_manage",
 						title: "内容管理",
-						show: false,
+						show: true,
 						subs: [
 							{
 								index: "material_manage",
 								title: "材料管理",
-								show: false
+								show: true
 							}, {
 								index: "note_manage",
 								title: "贴吧管理",
-								show: false
+								show: true
 							}
 						]
 					}

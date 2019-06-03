@@ -11,8 +11,7 @@
 					</el-option>
 				</el-select>
 				<el-input class="input_25 mgn_20" v-model="searchControl.keyWord" placeholder="筛选关键词"/>
-				<el-button class="mgn_20" type="primary" icon="el-icon-search"
-									 :disabled="operationControl.select" @click="requireData"
+				<el-button class="mgn_20" type="primary" icon="el-icon-search" @click="requireData"
 				>搜索
 				</el-button>
 				<el-button class="mgn_20" icon="el-icon-upload"
@@ -33,7 +32,7 @@
 				@sort-change='sortChange'
 				@select="selectChange"
 				@select-all="selectAll"
-				ref="notesTable"
+				ref="materialsTable"
 				:header-cell-style="handleHeaderStyle"
 			>
 				<el-table-column
@@ -68,7 +67,7 @@
 					align="center"/>
 				<el-table-column label="操作" align="center">
 					<template slot-scope="scope">
-						<el-button type="text" icon="el-icon-download" class="download" :disabled="operationControl.select"
+						<el-button type="text" icon="el-icon-download" class="download"
 											 @click="handleDownload(scope.row)">
 							下载
 						</el-button>
@@ -115,7 +114,7 @@
 					:data="{
 					type:editControl.uploadControl.temp.type,
 					note:editControl.uploadControl.temp.note,
-					author:editControl.uploadControl.temp.author
+					author:editControl.uploadControl.temp.author,
 					}"
 					:before-upload="beforeUpload"
 					:on-success="handleSuccess"
@@ -205,7 +204,8 @@
 						temp: {
 							type: null,
 							note: null,
-							author: null
+							author: null,
+							time: null,
 						},
 					}
 				},
@@ -236,9 +236,7 @@
 		},
 		mounted() {
 			this.user = this.$store.getters.getUser;
-			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "material_select") === -1) {
-				this.operationControl.select = true;
-			}
+
 			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "material_insert") === -1) {
 				this.operationControl.insert = true;
 			}
@@ -319,56 +317,9 @@
 				this.requireData()
 			},
 			selectChange(selection, row) {
-				// this.$ajax.request({
-				// 	url: "material",
-				// 	method: this.$ajax.method.GET,
-				// 	params: {
-				// 		model: {
-				// 			username: row.author
-				// 		}
-				// 	},
-				// 	success: res => {
-				// 		let roleTree = treeDao.createRoleTree(res.data.roles);
-				// 		if (roleTree.length > 0) {
-				// 			for (const role of roleTree) {
-				// 				if (!this.isInTree(role.rid)) {
-				// 					this.$message.warning(`权限不足以删除${row.author}`);
-				// 					this.$refs.usersTable.toggleRowSelection(row, false);
-				// 					return;
-				// 				}
-				// 			}
-				// 		}
-				//
-				// 	}
-				// });
 				this.tableControl.selection = selection;
 			},
 			selectAll(selection) {
-				// this.$ajax.allrequest(selection.map(row => ({
-				// 	url: "material",
-				// 	method: this.$ajax.method.GET,
-				// 	params: {
-				// 		model: {
-				// 			username: row.author
-				// 		}
-				// 	},
-				// 	success: res => {
-				// 		let roleTree = treeDao.createRoleTree(res.data.roles);
-				// 		if (roleTree.length > 0) {
-				// 			for (const role of roleTree) {
-				// 				if (!this.isInTree(role.rid)) {
-				// 					this.$message.warning(`权限不足以删除${row.author}`);
-				// 					this.$refs.usersTable.toggleRowSelection(row, false);
-				// 					break;
-				// 				}
-				// 			}
-				// 		}
-				// 	}
-				// })), {
-				// 	success: () => {
-				//
-				// 	}
-				// });
 				this.tableControl.selection = selection;
 			},
 			handleHeaderStyle() {
@@ -387,14 +338,14 @@
 				this.setEditStatus(true, {
 					type: null,
 					note: null,
-					author: this.user.username
+					author: this.user.username,
 				});
 			},
 			handleClose() {
 				this.setEditStatus(false, {
 					type: null,
 					note: null,
-					author: this.user.username
+					author: this.user.username,
 				});
 				this.$refs.upload.clearFiles();
 			},

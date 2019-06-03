@@ -1,47 +1,49 @@
 <template>
-	<div class="set-wrap">
-		<div class="set-title">账户中心</div>
-
-		<div class="set-user-info">
-			<el-form ref="form" :rules="rules" :model="form" label-width="80px">
-				<el-form-item prop="username" label="用户名">
-					<el-input v-model="form.username" placeholder="Username"></el-input>
-				</el-form-item>
-				<el-form-item prop="password" label="密码">
-					<el-input v-model="form.password" placeholder="Password" show-password></el-input>
-				</el-form-item>
-				<el-form-item prop="sex" label="性别">
-					<el-radio-group v-model="form.sex">
-						<el-radio label="男"></el-radio>
-						<el-radio label="女"></el-radio>
-					</el-radio-group>
-				</el-form-item>
-				<el-form-item prop="phone" label="手机">
-					<el-input v-model="form.phone" placeholder="非必填"></el-input>
-				</el-form-item>
-				<el-form-item prop="mail" label="邮箱">
-					<el-input v-model="form.mail" placeholder="非必填"></el-input>
-				</el-form-item>
-				<el-form-item>
-					<el-button type="primary" @click="submitForm">保存</el-button>
-					<el-button @click="close">返回</el-button>
-				</el-form-item>
-			</el-form>
+	<div class="container">
+		<div class="set-wrap">
+			<div class="set-title">账户中心</div>
+			<div class="set-user-info">
+				<el-form ref="form" :rules="rules" :model="form" label-width="80px">
+					<el-form-item prop="username" label="用户名">
+						<el-input v-model="form.username" placeholder="Username"></el-input>
+					</el-form-item>
+					<el-form-item prop="password" label="密码">
+						<el-input v-model="form.password" placeholder="Password" show-password></el-input>
+					</el-form-item>
+					<el-form-item prop="sex" label="性别">
+						<el-radio-group v-model="form.sex">
+							<el-radio label="男"></el-radio>
+							<el-radio label="女"></el-radio>
+						</el-radio-group>
+					</el-form-item>
+					<el-form-item prop="phone" label="手机">
+						<el-input v-model="form.phone" placeholder="非必填"></el-input>
+					</el-form-item>
+					<el-form-item prop="mail" label="邮箱">
+						<el-input v-model="form.mail" placeholder="非必填"></el-input>
+					</el-form-item>
+					<el-form-item>
+						<el-button type="primary" @click="submitForm">保存</el-button>
+						<el-button @click="close">返回</el-button>
+					</el-form-item>
+				</el-form>
+			</div>
+			<div class="set-avator">
+				<el-upload
+					class="set-avator-center"
+					:headers="headers"
+					:action="address"
+					:data="{uid:form.uid}"
+					:show-file-list="false"
+					list-type="picture"
+					:on-success="uploadImageSuccess">
+					<div class="user-avator-parent">
+						<img v-if="form.avator" :src="avatorBaseUrl+form.avator" class="user-avator" alt="编辑头像">
+						<span class="text">更换头像</span>
+					</div>
+				</el-upload>
+			</div>
 		</div>
-
-		<div class="set-avator">
-			<el-upload
-				class="set-avator-center"
-				:headers="headers"
-				:action="address"
-				:data="{uid:form.uid}"
-				show-file-list="false"
-				list-type="picture"
-				:on-success="uploadImageSuccess">
-				<img v-if="form.avator" :src="avatorBaseUrl+form.avator" class="user-avator" alt="编辑头像">
-			</el-upload>
-		</div>
-
 	</div>
 </template>
 
@@ -53,7 +55,7 @@
 			return {
 				headers: null,
 				address: "/rbac/user/avator",
-				avatorBaseUrl: this.$httpUrl.remoteBaseUrl + "resource/",
+				avatorBaseUrl: this.$httpUrl.rbac + "avators/",
 				form: {
 					uid: null,
 					username: null,
@@ -198,37 +200,71 @@
 	.set-wrap {
 		width: 80%;
 		margin: 0 auto;
-		height: 100%;
-	}
+		height: auto;
+		overflow: auto;
+		padding: 20px;
 
-	.set-title {
-		text-align: left;
-		font-size: 30px;
-		display: block;
-		margin: 25px 0 25px 25px;
-	}
-
-	.set-user-info {
-		width: 50%;
-		float: left;
-	}
-
-	.set-avator {
-		width: 50%;
-		float: left;
-
-		.set-avator-center {
-			width: 240px;
-			height: 200px;
-			margin: 0 auto;
+		.set-title {
+			text-align: left;
+			font-size: 30px;
+			margin: 25px 0 25px 25px;
 		}
-	}
 
-	.user-avator {
-		width: 180px;
-		height: 180px;
-		border-radius: 50%;
-		vertical-align: middle;
-		horiz-align: center;
+		.set-user-info {
+			width: 50%;
+			float: left;
+		}
+
+		.set-avator {
+			width: 50%;
+			float: left;
+
+			.set-avator-center {
+				width: 240px;
+				height: 200px;
+				margin: 0 auto;
+
+				.user-avator-parent {
+					position: relative;
+					width: 240px;
+					height: 200px;
+					vertical-align: middle;
+					horiz-align: center;
+
+					&:hover .text {
+						opacity: 0.6;
+					}
+
+					.user-avator {
+						width: 180px;
+						height: 180px;
+						border-radius: 50%;
+						vertical-align: middle;
+						horiz-align: center;
+					}
+
+					.text {
+						position: absolute;
+						top: 0;
+						bottom: 0;
+						left: 0;
+						right: 0;
+						width: 240px;
+						height: 200px;
+						line-height: 180px;
+						text-align: center;
+						letter-spacing: 5px;
+						background-color: #FFF;
+						-webkit-backface-visibility: hidden;
+						backface-visibility: hidden;
+						opacity: 0;
+						-webkit-transition: all 0.35s ease-in-out;
+						-moz-transition: all 0.35s ease-in-out;
+						transition: all 0.35s ease-in-out;
+					}
+
+				}
+			}
+		}
 	}
 </style>

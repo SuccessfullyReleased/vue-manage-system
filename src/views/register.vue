@@ -1,32 +1,34 @@
 <template>
 	<div class="reg-wrap">
-		<div class="reg-title">注册</div>
-
-		<el-form ref="form" :rules="rules" :model="form" label-width="80px">
-			<el-form-item prop="username" label="用户名">
-				<el-input v-model="form.username" placeholder="Username"></el-input>
-			</el-form-item>
-			<el-form-item prop="password" label="密码">
-				<el-input v-model="form.password" placeholder="Password" show-password></el-input>
-			</el-form-item>
-			<el-form-item prop="sex" label="性别">
-				<el-radio-group v-model="form.sex">
-					<el-radio label="男"></el-radio>
-					<el-radio label="女"></el-radio>
-				</el-radio-group>
-			</el-form-item>
-			<el-form-item prop="phone" label="手机">
-				<el-input v-model="form.phone" placeholder="非必填"></el-input>
-			</el-form-item>
-			<el-form-item prop="mail" label="邮箱">
-				<el-input v-model="form.mail" placeholder="非必填"></el-input>
-			</el-form-item>
-			<el-form-item>
-				<el-button type="primary" @click="submitForm">立即注册</el-button>
-				<el-button @click="goBack">取消</el-button>
-			</el-form-item>
-		</el-form>
-
+		<div class="v-center">
+			<el-card shadow="hover">
+				<div class="reg-title">注册</div>
+				<el-form class="reg-form" ref="form" :rules="rules" :model="form" label-width="80px">
+					<el-form-item prop="username" label="用户名">
+						<el-input v-model="form.username" placeholder="Username"></el-input>
+					</el-form-item>
+					<el-form-item prop="password" label="密码">
+						<el-input v-model="form.password" placeholder="Password" show-password></el-input>
+					</el-form-item>
+					<el-form-item prop="sex" label="性别">
+						<el-radio-group v-model="form.sex">
+							<el-radio label="男"></el-radio>
+							<el-radio label="女"></el-radio>
+						</el-radio-group>
+					</el-form-item>
+					<el-form-item prop="phone" label="手机">
+						<el-input v-model="form.phone" placeholder="非必填"></el-input>
+					</el-form-item>
+					<el-form-item prop="mail" label="邮箱">
+						<el-input v-model="form.mail" placeholder="非必填"></el-input>
+					</el-form-item>
+					<el-form-item>
+						<el-button type="primary" @click="submitForm">立即注册</el-button>
+						<el-button @click="goBack">取消</el-button>
+					</el-form-item>
+				</el-form>
+			</el-card>
+		</div>
 	</div>
 </template>
 
@@ -70,7 +72,7 @@
 		},
 		methods: {
 			isExistUsername(rule, value, callback) {
-				let options = {
+				this.$ajax.request({
 					url: '/rbac/user/count',
 					method: this.$ajax.method.GET,
 					params: {
@@ -78,27 +80,28 @@
 							username: this.form.username
 						}
 					},
+					auth: false,
 					success: res => {
 						let status = res.status;
 						if (status === 200) {
 							callback(new Error('已经存在此用户名'));
 						}
 					},
-					error: error => {
-						let status = error.status;
-						if (status === 404) {
-							callback();
-						} else {
-							callback(new Error('未知错误'));
+					error:
+						error => {
+							let status = error.status;
+							if (status === 404) {
+								callback();
+							} else {
+								callback(new Error('未知错误'));
+							}
 						}
-					}
-				};
-				this.$ajax.request(options);
+				});
 			},
 			submitForm() {
 				this.$refs['form'].validate((valid) => {
 					if (valid) {
-						let options = {
+						this.$ajax.request({
 							url: '/rbac/user',
 							method: 'POST',
 							data: {
@@ -118,10 +121,7 @@
 								text: '注册中',
 								time: 0.2
 							}
-						};
-						this.$ajax.request(options);
-					} else {
-						return false;
+						});
 					}
 				})
 			},
@@ -135,19 +135,28 @@
 
 <style lang="less" scoped>
 	.reg-wrap {
-		position: relative;
-		background-color: #ffffff;
 		width: 25%;
+		min-width: 400px;
 		margin: 0 auto;
+		display: table;
 		height: 100%;
-	}
 
-	.reg-title {
-		text-align: left;
-		font-size: 30px;
-		display: block;
-		margin: 25px 0 25px 25px;
-	}
+		.v-center {
+			display: table-cell;
+			vertical-align: middle;
 
+			.reg-title {
+				text-align: center;
+				font-size: 30px;
+				display: block;
+				margin: 25px 0 25px 25px;
+				padding-right: 20px;
+			}
+
+			.reg-form {
+				padding-right: 20px;
+			}
+		}
+	}
 
 </style>

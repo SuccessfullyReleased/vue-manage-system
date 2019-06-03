@@ -264,7 +264,6 @@
 
 <script>
 	import treeDao from "@components/tree"
-	import requests from "@components/requests"
 
 	export default {
 		name: "user_manage",

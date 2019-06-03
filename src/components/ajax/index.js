@@ -11,8 +11,6 @@ let requestOptions = {
 	qs: qs,//序列化
 
 	method: 'POST',//请求方式
-	root: null,//默认主机与端口,根据vue实例提供(setVueInstance)
-	path: '',//默认路径
 	params: null,//请求参数
 	data: null,//主体数据
 	async: true,
@@ -41,11 +39,7 @@ function filter(options) {
 	options.error = judge(options.error, requestOptions.error);
 	options.method = judge(options.method, requestOptions.method);
 	if (!options.url) {
-		let root = options.root || requestOptions.root;
-		delete options.root;
-		let path = options.path || requestOptions.path;
-		delete options.path;
-		options.url = root + path;
+		options.name = "虚假请求";
 	}
 	options.params = judge(options.params, requestOptions.params);
 	options.data = judge(options.data, requestOptions.data);
@@ -80,19 +74,17 @@ function install(Vue) {
 
 function setVueInstance(VueInstance) {
 	requestOptions.Vue = VueInstance;
-	requestOptions.root = VueInstance.$httpUrl.remoteBaseUrl;
 	requestOptions.Axios.interceptors.response.use(function (response) {
 		return response;
 	}, function (error) {
 		if (error.response.status === 401) {
 			console.error("用户token已失效,3秒钟后将回到登录页面");
-			requestOptions.Vue.$message.error("用户token已失效,3秒钟后将回到登录页面");
+			requestOptions.Vue.$message.error("用户token已失效,回到登录页面");
 			cookies.remove("token");
-			setInterval(function () {
-				requestOptions.Vue.$router.push('/');
-			}, 3000);
+			console.error("请求头:401");
+			requestOptions.Vue.$router.push('/');
 		}
-		return error;
+		return Promise.reject(error);
 	});
 }
 

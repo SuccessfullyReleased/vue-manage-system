@@ -82,6 +82,7 @@
 							username: this.ruleForm.username
 						}
 					},
+					auth:false,
 					success: res => {
 						let status = res.status;
 						if (status === 200) {
@@ -111,6 +112,7 @@
 									password: this.ruleForm.password
 								}
 							},
+							auth:false,
 							loadingOptions: {
 								loading: true,
 								text: "正在登录",

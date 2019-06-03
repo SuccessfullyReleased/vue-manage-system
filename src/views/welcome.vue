@@ -3,7 +3,7 @@
 		<el-row :gutter="20">
 			<el-col :span="8">
 				<el-card shadow="hover" :body-style="{ height: '180px'}">
-					<div slot="header" class="clearfix">
+					<div slot="header" class="header">
 						<span>欢迎访问</span>
 					</div>
 					<div class="user-info">
@@ -16,7 +16,7 @@
 			</el-col>
 			<el-col :span="16">
 				<el-card shadow="hover">
-					<div slot="header" class="clearfix">
+					<div slot="header" class="header">
 						<span>菜单</span>
 					</div>
 
@@ -96,7 +96,7 @@
 	}
 </script>
 
-<style scoped>
+<style lang="less" scoped>
 	.grid-content {
 		display: flex;
 		align-items: center;
@@ -163,31 +163,34 @@
 		margin-top: 20px;
 		padding-bottom: 20px;
 		margin-bottom: 20px;
+
+		.user-avator {
+			width: 120px;
+			height: 120px;
+			border-radius: 50%;
+		}
+
+		.user-info-cont {
+			padding-left: 50px;
+			flex: 1;
+			font-size: 14px;
+			color: #999;
+		}
+
+		.user-info-cont div:first-child {
+			font-size: 30px;
+			color: #222;
+		}
 	}
 
-	.clearfix {
-		font-size: 30px;
-		color: #409eff;
+	.header {
+		background-color: #FFFFFF;
 		text-align: center;
-		margin-left: 25px;
-	}
 
-	.user-avator {
-		width: 120px;
-		height: 120px;
-		border-radius: 50%;
-	}
-
-	.user-info-cont {
-		padding-left: 50px;
-		flex: 1;
-		font-size: 14px;
-		color: #999;
-	}
-
-	.user-info-cont div:first-child {
-		font-size: 30px;
-		color: #222;
+		span {
+			font-size: 30px;
+			color: #409eff;
+		}
 	}
 
 	.mgb20 {
