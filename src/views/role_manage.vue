@@ -155,11 +155,11 @@
 
 		</div>
 
-		<el-dialog title="提示" :visible.sync="deleteControl.deletable" width="300px" center>
+		<el-dialog title="删除提示" :visible.sync="deleteControl.deletable" width="300px" center>
 			<div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
 			<span slot="footer" class="dialog-footer">
                 <el-button @click="deleteControl.deletable = false">取 消</el-button>
-                <el-button type="primary" @click="confirmDelete">确 定</el-button>
+                <el-button type="danger" @click="confirmDelete">确 定</el-button>
             </span>
 		</el-dialog>
 
@@ -167,6 +167,8 @@
 </template>
 
 <script>
+	import treeDao from "@components/tree"
+
 	export default {
 		name: "role_manage",
 		data() {
@@ -246,6 +248,7 @@
 				this.operationControl.update = true;
 			}
 
+			this.searchControl.roleTree = this.$store.getters.getRoleTree;
 			this.searchControl.roleOptions = this.$store.getters.getRoleOptions;
 			this.searchControl.roleOptions.forEach((value) => {
 				if (this.$lodash.findIndex(this.user.total_roles, role => role.rid === value.rid) !== -1) {
@@ -344,32 +347,22 @@
 				}
 				this.requireData()
 			},
-			isInTree(rid) {
-				let path = treeDao.findNodePath(this.searchControl.roleTree, "rid", rid);
-				for (const rootNode of this.user.roleTree) {
-					let index = this.$lodash.findIndex(path, role => role.rid === rootNode.rid);
-					if (index !== -1 && index !== path.length - 1) {
-						return true;
-					}
-				}
-				return false;
-			},
 			selectChange(selection, row) {
-				if (!this.isInTree(row.rid)) {
-					this.$message.warning(`权限不足以删除${row.rolename}`);
-					this.$refs.rolesTable.toggleRowSelection(row, false);
+				if (this.$lodash.find(selection, role => role.rid === row.rid)) {
+					treeDao.can(this.searchControl.roleTree, this.user.roleTree, [row], () => {
+						this.tableControl.selection = selection;
+					}, role => {
+						this.$message.warning(`权限不足以更改${role.rolename}`);
+						this.$refs.rolesTable.toggleRowSelection(row, false);
+					});
 				} else {
 					this.tableControl.selection = selection;
 				}
 			},
 			selectAll(selection) {
 				for (const row of selection) {
-					if (!this.isInTree(row.rid)) {
-						this.$message.warning(`权限不足以删除${row.rolename}`);
-						this.$refs.rolesTable.toggleRowSelection(row, false);
-					}
+					this.selectChange(selection, row);
 				}
-				this.tableControl.selection = selection;
 			},
 			handleHeaderStyle() {
 				return {
@@ -378,14 +371,6 @@
 					"font-size": "14px"
 				}
 			},
-			// resetUser() {
-			// 	this.$store.dispatch('resetUser', this.user.uid).then((user) => {
-			// 		this.user = user;
-			// 	}).catch(() => {
-			// 		this.$message.warning("无法重新初始化用户");
-			// 		this.$router.push("/welcome")
-			// 	});
-			// },
 			resetRoleOptions() {
 				this.$store.dispatch('resetRoles').then((roleOptions) => {
 					this.searchControl.roleTree = this.$store.getters.getRoleTree;
@@ -399,7 +384,7 @@
 					});
 				}).catch(() => {
 					this.$message.warning("无法重新初始化角色");
-					this.$router.push("/welcome")
+					this.$router.push("/");
 				});
 			},
 
@@ -479,20 +464,24 @@
 				this.setEditStatus(false, false, null, null);
 			},
 			handleEdit(index, row) {
-				if (!this.isInTree(row.rid)) {
-					this.$message.warning(`权限不足以修改${row.rolename}`);
-					return;
-				}
-				row.editable = true;
-				let params = this.$lodash.omit(row, ['editable']);
-				this.setEditStatus(true, false, this.getIndex(index), params);
+				treeDao.can(this.searchControl.roleTree, this.user.roleTree, [row], () => {
+					row.editable = true;
+					let params = this.$lodash.omit(row, ['editable']);
+					this.setEditStatus(true, false, this.getIndex(index), params);
+				}, role => {
+					this.$message.warning(`权限不足以修改${role.rolename}`);
+				});
 			},
 			handleInsert() {
+				if (this.user.roleTree.length === 0) {
+					this.$message.error("此用户无法创建角色");
+					return;
+				}
 				this.tableControl.tableData.push({
 					rid: null,
 					rolename: null,
 					note: null,
-					parent: this.user.roleTree[0],
+					parent: this.user.roleTree[0].rid,
 					editable: true
 				});
 				this.locatePage(this.tableControl.tableData.length - 1);
@@ -500,7 +489,7 @@
 					rid: null,
 					rolename: null,
 					note: null,
-					parent: this.user.roleTree[0],
+					parent: this.user.roleTree[0].rid,
 					editable: true
 				});
 			},
@@ -513,12 +502,11 @@
 				this.deleteControl.deleteRows = deleteRows;
 			},
 			handleDelete(index, row) {
-				if (!this.isInTree(row.rid)) {
-					this.$message.warning(`权限不足以删除${row.rolename}`);
-					this.setDeleteStatus(false, false, null, null, null);
-				} else {
+				treeDao.can(this.searchControl.roleTree, this.user.roleTree, [row], () => {
 					this.setDeleteStatus(true, false, this.getIndex(index), row, null);
-				}
+				}, role => {
+					this.$message.warning(`权限不足以删除${role.rolename}`);
+				});
 			},
 			handleLargeDelete() {
 				this.setDeleteStatus(true, true, null, null, this.tableControl.selection);

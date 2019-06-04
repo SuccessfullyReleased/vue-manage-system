@@ -1,30 +1,132 @@
 import Vue from "vue"
 import _ from "lodash"
 
-function createRoleTree(roles) {
-	roles.sort((a, b) => a.rid - b.rid);
+function createTree(_roles) {
+	if (!_roles || _roles.length === 0) {
+		return [];
+	}
+	let roles = _roles.concat();
 	let tree = [];
-	roles.forEach((role) => {
+
+	for (let i = roles.length - 1; i >= 0; i--) {
+		let role = roles[i];
 		Vue.set(role, "children", []);
-		if (role.parent) {
-			let node = findInTree(tree, "rid", role.parent);
-			if (node) {
-				node.children.push(role);
-			} else {
-				if (role.parent === 1) {
-					tree.push(role);
-				} else {
-					throw new Error(`can't find rid ${role.parent}`)
-				}
-			}
-		} else {
-			tree.push(role);
+		if (!role.parent) {
+			tree = tree.concat(roles.splice(i, 1));
 		}
+	}
+
+	let getChildren = function (node, roles) {
+		for (let i = roles.length - 1; i >= 0; i--) {
+			let role = roles[i];
+			if (role.parent === node.rid) {
+				node.children = node.children.concat(roles.splice(i, 1));
+				getChildren(role, roles);
+			}
+		}
+	};
+
+	tree.forEach(root => {
+		getChildren(root, roles);
 	});
 	return tree;
 }
 
+function get_roots(roleTree, _roles) {
+	if (!roleTree || !_roles) {
+		throw new Error("arguments have null");
+	}
+	if (!_roles || _roles.length === 0) {
+		return [];
+	}
+	let roles = _roles.concat();
+	let tree = [];
+
+	for (let i = roles.length - 1; i >= 0; i--) {
+		let role = roles[i];
+		if (!role.parent) {
+			tree = tree.concat(roles.splice(i, 1));
+		}
+	}
+
+	if (tree.length === 0) {
+		let rootRoles = function (node, roles) {
+			let temp = _.find(roles, val => val.rid === node.rid);
+			if (temp) {
+				tree.push(temp);
+			} else {
+				if (node.children) {
+					for (const child of node.children) {
+						rootRoles(child, roles);
+					}
+				}
+			}
+		};
+
+		rootRoles(roleTree[0], roles);
+		return tree;
+	} else {
+		return tree;
+	}
+}
+
+
+function can(roleTree, userRoots, roles, resolve, reject) {
+	let isInTree = function (rid) {
+		let path = findNodePath(roleTree, "rid", rid);
+		for (const rootNode of userRoots) {
+			let index = _.findIndex(path, role => role.rid === rootNode.rid);
+			if (index !== -1 && index !== path.length - 1) {
+				return true;
+			}
+		}
+		return false;
+	};
+
+	let roots = get_roots(roleTree, roles);
+	console.log(roots);
+	if (roots.length > 0) {
+		for (const role of roots) {
+			if (!isInTree(role.rid)) {
+				reject(role);
+				return;
+			}
+		}
+	}
+	resolve();
+}
+
+function createRoleTree(roles) {
+	return createTree(roles);
+	// if (!roles || roles.length === 0) {
+	// 	return [];
+	// }
+	// roles.sort((a, b) => a.rid - b.rid);
+	// let tree = [];
+	// roles.forEach((role) => {
+	// 	Vue.set(role, "children", []);
+	// 	if (role.parent) {
+	// 		let node = findInTree(tree, "rid", role.parent);
+	// 		if (node) {
+	// 			node.children.push(role);
+	// 		} else {
+	// 			if (role.parent === 1) {
+	// 				tree.push(role);
+	// 			} else {
+	// 				throw new Error(`can't find rid ${role.parent}`)
+	// 			}
+	// 		}
+	// 	} else {
+	// 		tree.push(role);
+	// 	}
+	// });
+	// return tree;
+}
+
 function createAccessTree(accesses) {
+	if (!accesses || accesses.length === 0) {
+		return [];
+	}
 	accesses.sort((a, b) => a.aid - b.aid);
 
 	let _accesses = accesses.map(access => {
@@ -124,5 +226,5 @@ function traverseTree(tree, callback) {
 }
 
 export default {
-	createRoleTree, createAccessTree, findInTree, findNodePath, traverseTree
+	createRoleTree, createAccessTree, findInTree, findNodePath, traverseTree, get_roots, can
 }

@@ -81,22 +81,23 @@ export default new Vuex.Store({
 	actions: {
 		init(context, username) {
 			return new Promise((resolve, reject) => {
-				ajax.request(requests.getUserByUsername(username, user => {
-					context.commit("setUser", user);
-					ajax.request(requests.getUserGroupOptions(userGroupOptions => {
-						context.commit("setUserGroupOptions", userGroupOptions);
+				ajax.request(requests.getUserGroupOptions(userGroupOptions => {
+					context.commit("setUserGroupOptions", userGroupOptions);
+				}));
+				ajax.request(requests.getRoleOptions(roleOptions => {
+					context.commit("setRoleOptions", roleOptions);
+					let roleTree = requests.getRoleTree(roleOptions);
+					context.commit("setRoleTree", roleTree);
+					ajax.request(requests.init(username, roleTree, user => {
+						context.commit("setUser", user);
+						resolve();
+					}, err => {
+						reject(err);
 					}));
-					ajax.request(requests.getRoleOptions(roleOptions => {
-						context.commit("setRoleOptions", roleOptions);
-						context.commit("setRoleTree", requests.getRoleTree(roleOptions));
-					}));
-					ajax.request(requests.getAccessOptions(accessOptions => {
-						context.commit("setAccessOptions", accessOptions);
-						context.commit("setAccessTree", requests.getAccessTree(accessOptions));
-					}));
-					resolve();
-				}, err => {
-					reject(err);
+				}));
+				ajax.request(requests.getAccessOptions(accessOptions => {
+					context.commit("setAccessOptions", accessOptions);
+					context.commit("setAccessTree", requests.getAccessTree(accessOptions));
 				}));
 			})
 		},

@@ -103,6 +103,7 @@
 	import Quill from 'quill';
 	import ImageResize from 'quill-image-resize-module'
 	import treeDao from "@components/tree"
+	import request from "@components/requests"
 
 	Quill.register('modules/imageResize', ImageResize);
 
@@ -261,17 +262,6 @@
 				}
 			},
 
-			isInTree(rid) {
-				let path = treeDao.findNodePath(this.searchControl.roleTree, "rid", rid);
-				for (const rootNode of this.user.roleTree) {
-					let index = this.$lodash.findIndex(path, role => role.rid === rootNode.rid);
-					if (index !== -1 && index !== path.length - 1) {
-						return true;
-					}
-				}
-				return false;
-			},
-
 			setEditStatus(editable, temp = null) {
 				this.editControl.editable = editable;
 				if (temp) {
@@ -320,33 +310,15 @@
 				this.deleteControl.nid = nid;
 			},
 			handleDeleteNote(note) {
-				if (this.user.username === note.author) {
+				if (note.author === this.user.username) {
 					this.setDeleteStatus(true, note.nid);
 				} else {
-					this.$ajax.request({
-						method: this.$ajax.method.GET,
-						url: "/rbac/user",
-						params: {
-							model: {
-								username: note.author
-							}
-						},
-						success: res => {
-							let roleTree = treeDao.createRoleTree(res.data.roles);
-							let can = true;
-							if (roleTree.length > 0) {
-								for (const role of roleTree) {
-									if (!this.isInTree(role.rid)) {
-										this.$message.warning(`权限不足以删除${note.author}`);
-										can = false;
-										break;
-									}
-								}
-							}
-							if (can) {
-								this.setDeleteStatus(true, note.nid);
-							}
-						}
+					request.getRolesByUsername(note.author, this.searchControl.roleTree, roles => {
+						treeDao.can(this.searchControl.roleTree, this.user.roleTree, roles, () => {
+							this.setDeleteStatus(true, note.nid);
+						}, role => {
+							this.$message.warning(`权限不足以删除${role.rolename}的帖子`);
+						});
 					});
 				}
 			},

@@ -127,27 +127,17 @@
 			getCheckedKeys() {
 				return this.$refs.tree.getCheckedKeys();
 			},
-			isInTree(rid) {
-				let path = treeDao.findNodePath(this.searchControl.roleTree, "rid", rid);
-				for (const rootNode of this.user.roleTree) {
-					let index = this.$lodash.findIndex(path, role => role.rid === rootNode.rid);
-					if (index !== -1 && index !== path.length - 1) {
-						return true;
-					}
-				}
-				return false;
-			},
 			handleUpdate() {
 				let role = this.$lodash.find(this.searchControl.roleOptions, role => role.rolename === this.searchControl.keyWord);
-				if (!this.isInTree(role.rid)) {
+				treeDao.can(this.searchControl.roleTree, this.user.roleTree, [role], () => {
+					this.editable = true;
+					treeDao.traverseTree(this.accessTree, res => {
+						res.disabled = false;
+					});
+					this.temp = this.getCheckedKeys();
+				}, role => {
 					this.$message.warning(`权限不足以修改${role.rolename}`);
-					return;
-				}
-				this.editable = true;
-				treeDao.traverseTree(this.accessTree, res => {
-					res.disabled = false;
 				});
-				this.temp = this.getCheckedKeys();
 			},
 			handleSave() {
 				let params = {
@@ -155,12 +145,6 @@
 						this.searchControl.keyWord === role.rolename)].rid,
 					accesses: null
 				};
-
-				if (treeDao.findNodePath(this.user.roleTree, "rid", params.rid).length < 2) {
-					this.$message.warning(`权限不足以修改${this.searchControl.keyWord}`);
-					this.handleClose();
-					return;
-				}
 
 				let aids = this.getCheckedKeys();
 				if (this.$lodash.difference(this.temp, aids).length === this.$lodash.difference(aids, this.temp).length === 0) {

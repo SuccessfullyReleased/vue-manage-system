@@ -24,7 +24,7 @@
 							<div class="content">
 								<div class="ql-editor floor-content" v-html="floor.contentText"></div>
 								<div class="collapse">
-									<el-collapse accordion @change="handleCollapseChange">
+									<el-collapse accordion>
 										<el-collapse-item :name="floor.fid">
 											<template slot="title">
 												<div class="info">
@@ -145,6 +145,7 @@
 
 <script>
 	import treeDao from "@components/tree"
+	import request from "@components/requests"
 
 	export default {
 		name: "note_content",
@@ -377,22 +378,6 @@
 					return !this.operationControl.delete;
 				}
 			},
-			handleCollapseChange(fid) {
-				if (fid) {
-
-				}
-			},
-
-			isInTree(rid) {
-				let path = treeDao.findNodePath(this.searchControl.roleTree, "rid", rid);
-				for (const rootNode of this.user.roleTree) {
-					let index = this.$lodash.findIndex(path, role => role.rid === rootNode.rid);
-					if (index !== -1 && index !== path.length - 1) {
-						return true;
-					}
-				}
-				return false;
-			},
 
 			setEditStatus(floorControl, commentControl, isInsert = null) {
 				if (floorControl.temp) {
@@ -525,33 +510,19 @@
 				}
 			},
 			handleDeleteFloor(note, floor) {
+				if (note.time === floor.time) {
+					this.$message.warning(`一楼不可删除`);
+					return;
+				}
 				if (this.user.username === note.author || this.user.username === floor.author) {
 					this.setDeleteStatus(true, "floor", floor);
 				} else {
-					this.$ajax.request({
-						method: this.$ajax.method.GET,
-						url: "/rbac/user",
-						params: {
-							model: {
-								username: floor.author
-							}
-						},
-						success: res => {
-							let roleTree = treeDao.createRoleTree(res.data.roles);
-							let can = true;
-							if (roleTree.length > 0) {
-								for (const role of roleTree) {
-									if (!this.isInTree(role.rid)) {
-										this.$message.warning(`权限不足以删除${floor.author}`);
-										can = false;
-										break;
-									}
-								}
-							}
-							if (can) {
-								this.setDeleteStatus(true, "floor", floor);
-							}
-						}
+					request.getRolesByUsername(floor.author, this.searchControl.roleTree, roles => {
+						treeDao.can(this.searchControl.roleTree, this.user.roleTree, roles, () => {
+							this.setDeleteStatus(true, "floor", floor);
+						}, role => {
+							this.$message.warning(`权限不足以删除${role.rolename}的楼层`);
+						});
 					});
 				}
 			},
@@ -559,30 +530,12 @@
 				if (this.user.username === note.author || this.user.username === comment.author) {
 					this.setDeleteStatus(true, "comment", comment);
 				} else {
-					this.$ajax.request({
-						method: this.$ajax.method.GET,
-						url: "/rbac/user",
-						params: {
-							model: {
-								username: comment.author
-							}
-						},
-						success: res => {
-							let roleTree = treeDao.createRoleTree(res.data.roles);
-							let can = true;
-							if (roleTree.length > 0) {
-								for (const role of roleTree) {
-									if (!this.isInTree(role.rid)) {
-										this.$message.warning(`权限不足以删除${comment.author}`);
-										can = false;
-										break;
-									}
-								}
-							}
-							if (can) {
-								this.setDeleteStatus(true, "comment", comment);
-							}
-						}
+					request.getRolesByUsername(comment.author, this.searchControl.roleTree, roles => {
+						treeDao.can(this.searchControl.roleTree, this.user.roleTree, roles, () => {
+							this.setDeleteStatus(true, "comment", comment);
+						}, role => {
+							this.$message.warning(`权限不足以删除${role.rolename}的评论`);
+						});
 					});
 				}
 			},

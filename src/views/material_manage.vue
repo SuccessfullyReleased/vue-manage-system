@@ -131,11 +131,11 @@
 			</span>
 		</el-dialog>
 
-		<el-dialog title="提示" :visible.sync="deleteControl.deletable" width="300px" center>
+		<el-dialog title="删除提示" :visible.sync="deleteControl.deletable" width="300px" center>
 			<div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
 			<span slot="footer" class="dialog-footer">
 				<el-button @click="deleteControl.deletable = false">取 消</el-button>
-				<el-button type="primary" @click="confirmDelete">确 定</el-button>
+				<el-button type="danger" @click="confirmDelete">确 定</el-button>
       </span>
 		</el-dialog>
 
@@ -143,6 +143,9 @@
 </template>
 
 <script>
+	import treeDao from "@components/tree"
+	import request from "@components/requests"
+
 	export default {
 		name: "material_manage",
 		data() {
@@ -317,10 +320,27 @@
 				this.requireData()
 			},
 			selectChange(selection, row) {
-				this.tableControl.selection = selection;
+				if (this.$lodash.find(selection, material => material.mid === row.mid)) {
+					if (row.author === this.user.username) {
+						this.tableControl.selection = selection;
+					} else {
+						request.getRolesByUsername(row.author, this.searchControl.roleTree, roles => {
+							treeDao.can(this.searchControl.roleTree, this.user.roleTree, roles, () => {
+								this.tableControl.selection = selection;
+							}, role => {
+								this.$message.warning(`权限不足以更改${role.rolename}上传的文件`);
+								this.$refs.materialsTable.toggleRowSelection(row, false);
+							});
+						});
+					}
+				} else {
+					this.tableControl.selection = selection;
+				}
 			},
 			selectAll(selection) {
-				this.tableControl.selection = selection;
+				for (const row of selection) {
+					this.selectChange(selection, row);
+				}
 			},
 			handleHeaderStyle() {
 				return {
@@ -396,7 +416,17 @@
 				this.deleteControl.deleteRows = deleteRows;
 			},
 			handleDelete(index, row) {
-				this.setDeleteStatus(true, false, this.getIndex(index), row, null);
+				if (row.author === this.user.username) {
+					this.setDeleteStatus(true, false, this.getIndex(index), row, null);
+				} else {
+					request.getRolesByUsername(row.author, this.searchControl.roleTree, roles => {
+						treeDao.can(this.searchControl.roleTree, this.user.roleTree, roles, () => {
+							this.setDeleteStatus(true, false, this.getIndex(index), row, null);
+						}, role => {
+							this.$message.warning(`权限不足以删除${role.rolename}上传的文件`);
+						});
+					});
+				}
 			},
 			handleLargeDelete() {
 				this.setDeleteStatus(true, true, null, null, this.tableControl.selection);

@@ -149,11 +149,11 @@
 
 		</div>
 
-		<el-dialog title="提示" :visible.sync="deleteControl.deletable" width="300px" center>
+		<el-dialog title="删除提示" :visible.sync="deleteControl.deletable" width="300px" center>
 			<div class="del-dialog-cnt">删除不可恢复，是否确定删除？</div>
 			<span slot="footer" class="dialog-footer">
                 <el-button @click="deleteControl.deletable = false">取 消</el-button>
-                <el-button type="primary" @click="confirmDelete">确 定</el-button>
+                <el-button type="danger" @click="confirmDelete">确 定</el-button>
             </span>
 		</el-dialog>
 
@@ -354,43 +354,24 @@
 				}
 				this.requireData()
 			},
-			isInTree(rid) {
-				let path = treeDao.findNodePath(this.searchControl.roleTree, "rid", rid);
-				for (const rootNode of this.user.roleTree) {
-					let index = this.$lodash.findIndex(path, role => role.rid === rootNode.rid);
-					if (index !== -1 && index !== path.length - 1) {
-						return true;
-					}
-				}
-				return false;
-			},
+
 			selectChange(selection, row) {
-				let roleTree = treeDao.createRoleTree(row.roles);
-				if (roleTree.length > 0) {
-					for (const role of roleTree) {
-						if (!this.isInTree(role.rid)) {
-							this.$message.warning(`权限不足以删除${row.groupname}`);
-							this.$refs.groupsTable.toggleRowSelection(row, false);
-							return;
-						}
-					}
+				if (this.$lodash.find(selection, group => group.ugid === row.ugid)) {
+					let total = this.$lodash.uniqBy(row.roles, 'rid');
+					treeDao.can(this.searchControl.roleTree, this.user.roleTree, total, () => {
+						this.tableControl.selection = selection;
+					}, role => {
+						this.$message.warning(`权限不足以更改${role.rolename}`);
+						this.$refs.groupsTable.toggleRowSelection(row, false);
+					});
+				} else {
+					this.tableControl.selection = selection;
 				}
-				this.tableControl.selection = selection;
 			},
 			selectAll(selection) {
 				for (const row of selection) {
-					let roleTree = treeDao.createRoleTree(row.roles);
-					if (roleTree.length > 0) {
-						for (const role of roleTree) {
-							if (!this.isInTree(role.rid)) {
-								this.$message.warning(`权限不足以删除${row.groupname}`);
-								this.$refs.groupsTable.toggleRowSelection(row, false);
-								break;
-							}
-						}
-					}
+					this.selectChange(selection, row);
 				}
-				this.tableControl.selection = selection;
 			},
 			handleHeaderStyle() {
 				return {
@@ -477,18 +458,14 @@
 				this.setEditStatus(false, false, null, null);
 			},
 			handleEdit(index, row) {
-				let roleTree = treeDao.createRoleTree(row.roles);
-				if (roleTree.length > 0) {
-					for (const role of roleTree) {
-						if (!this.isInTree(role.rid)) {
-							this.$message.warning(`权限不足以修改${row.groupname}`);
-							return;
-						}
-					}
-				}
-				row.editable = true;
-				let params = this.$lodash.omit(row, ['editable']);
-				this.setEditStatus(true, false, this.getIndex(index), params);
+				let total = this.$lodash.uniqBy(row.roles, 'rid');
+				treeDao.can(this.searchControl.roleTree, this.user.roleTree, total, () => {
+					row.editable = true;
+					let params = this.$lodash.omit(row, ['editable']);
+					this.setEditStatus(true, false, this.getIndex(index), params);
+				}, role => {
+					this.$message.warning(`权限不足以修改${role.rolename}`);
+				});
 			},
 			handleInsert() {
 				this.tableControl.tableData.push({
@@ -516,16 +493,12 @@
 				this.deleteControl.deleteRows = deleteRows;
 			},
 			handleDelete(index, row) {
-				let roleTree = treeDao.createRoleTree(row.roles);
-				if (roleTree.length > 0) {
-					for (const role of roleTree) {
-						if (!this.isInTree(role.rid)) {
-							this.$message.warning(`权限不足以删除${row.groupname}`);
-							return;
-						}
-					}
-				}
-				this.setDeleteStatus(true, false, this.getIndex(index), row, null);
+				let total = this.$lodash.uniqBy(row.roles, 'rid');
+				treeDao.can(this.searchControl.roleTree, this.user.roleTree, total, () => {
+					this.setDeleteStatus(true, false, this.getIndex(index), row, null);
+				}, role => {
+					this.$message.warning(`权限不足以删除${role.rolename}`);
+				});
 			},
 			handleLargeDelete() {
 				this.setDeleteStatus(true, true, null, null, this.tableControl.selection);
