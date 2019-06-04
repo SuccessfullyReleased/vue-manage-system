@@ -14,7 +14,7 @@
 vue | Javascript渐进式框架 | 2.6.10 |  [https://cn.vuejs.org/](https://cn.vuejs.org/)
 vue-router | Vue官方路由管理器 | 3.0.3 |  [https://router.vuejs.org/zh/](https://router.vuejs.org/zh/)
 vuex | Vue官方状态管理模式 | 3.0.1 |  [https://vuex.vuejs.org/zh/](https://vuex.vuejs.org/zh/)
-element-ui| 基于 Vue 2.0 的桌面端组件库 | 2.8.2 |  [https://element.eleme.cn/#/zh-CN](https://element.eleme.cn/#/zh-CN)
+element-ui| 基于 Vue 2.0 的桌面端组件库 | 2.9.1 |  [https://element.eleme.cn/#/zh-CN](https://element.eleme.cn/#/zh-CN)
 vue-cookies | 简单的处理浏览器cookie的vue插件 | 1.5.13 |  [https://www.npmjs.com/package/vue-cookies](https://www.npmjs.com/package/vue-cookies)
 axios | 基于 promise 的 HTTP 库 | 0.18.0 |  [https://www.kancloud.cn/yunye/axios/234845](https://www.kancloud.cn/yunye/axios/234845)
 lodash | 高性能的 JavaScript 实用工具库 | 4.17.11 |  [https://www.lodashjs.com/](https://www.lodashjs.com/)
@@ -160,11 +160,20 @@ less | CSS 预处理语言 | 3.0.4 |  [http://lesscss.cn/](http://lesscss.cn/)
         - [main.js](src/main.js)  
         用户验证通过后，如果该用户没有进入某个菜单的权限，任何获取该页面的方法都将返回 [403](src/views/403.vue)
     - 操作验证：
-        - [user_manage](src/views/user_manage.vue) | [group_manage](src/views/group_manage.vue) | [role_manage](src/views/note_manage.vue) | [access_manage](src/views/access_manage.vue)  
-        如果该用户没有某个操作的权限，该操作所对应的页面元素将被禁用
-
-## 未完成扩展：
-
-- 头像悬停样式
-
-- 表格修改头像
+        - [user_manage](src/views/user_manage.vue) | [group_manage](src/views/group_manage.vue) | [role_manage](src/views/note_manage.vue) | [access_manage](src/views/access_manage.vue) | [material_manage](src/views/material_manage.vue) | [note_manage](src/views/note_manage.vue) | [note_content](src/views/note_content.vue)  
+        如果该用户没有某个操作的权限，该操作所对应的页面元素不会显示或者被禁用
+    
+- 角色验证：  
+    - 规则：  
+        - 所有角色直接或简介继承 ```超级管理员``` 角色
+        -  ```超级管理员``` 角色拥有所有的权限（最高权限）
+        - 子角色的权限等级不会高于父角色的权限等级，即：
+            - 子角色只能被赋予父角色拥有的权限
+            - 父角色不能将自己未拥有的角色赋予子角色
+        - 所有角色只能操作自己的子角色
+    - 验证机制：  
+        - 初始化用户之前先构建一颗角色树，因为所有角色直接或简介继承 ```超级管理员``` 这个角色，所以这棵树以 ```超级管理员``` 为根节点，囊括了所有的角色。
+        - 查找用户的所有角色
+        - 参照角色树，找出所有靠近根节点且没有继承关系的角色
+        - 与目标操作进行角色的权限等级对比，得出是否能够进行该操作  
+        在 ```rbac``` 中，对目标（用户或用户组）的操作需要与其所拥有的的角色进行全部比对，一旦目标拥有一个或多个无法操作的角色，该操作无法进行下去
