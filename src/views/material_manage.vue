@@ -108,6 +108,7 @@
 					class="mgnB_20"
 					ref="upload"
 					:action="address"
+					:headers="headers"
 					:limit="editControl.uploadControl.limit"
 					show-file-list
 					:auto-upload="false"
@@ -150,6 +151,7 @@
 		name: "material_manage",
 		data() {
 			return {
+				headers: null,
 				address: "/cms/material",
 				downloadAddress: this.$httpUrl.cms + "materials/",
 				user: null,
@@ -238,6 +240,12 @@
 			});
 		},
 		mounted() {
+			let token = this.$cookies.get("token");
+			if (token) {
+				this.headers = {"authorization": token};
+			} else {
+				this.headers = null;
+			}
 			this.user = this.$store.getters.getUser;
 
 			if (this.$lodash.findIndex(this.user.accesses, access => access.operation && access.operation.key === "material_insert") === -1) {
@@ -390,22 +398,18 @@
 			},
 
 			handleDownload(row) {
-				this.$ajax.getAxios()({
-					url: "/cms/materials",
-					method: this.$ajax.method.POST,
-					data: row,
-					responseType: "arraybuffer"
-				}).then(res => {
-					let url = window.URL.createObjectURL(new Blob([res.data]));
-					let link = document.createElement('a');
-					link.style.display = 'none';
-					link.href = url;
-					let name = res.headers["content-disposition"].split("''")[1];
-					link.setAttribute("download", decodeURIComponent(name));
-					document.body.appendChild(link);
-					link.click();
-					link.remove();
-				})
+				let params = {
+					title: row.title,
+					file: row.file
+				};
+				params = encodeURIComponent(JSON.stringify(params));
+				console.log(params);
+				let link = document.createElement('a');
+				link.style.display = 'none';
+				link.href = `http://localhost:9501/cms/materials/file?material=${params}`;
+				document.body.appendChild(link);
+				link.click();
+				document.body.removeChild(link);
 			},
 
 			setDeleteStatus(deletable, isLarge, index, deleteRow, deleteRows) {
