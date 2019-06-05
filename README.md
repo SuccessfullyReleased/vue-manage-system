@@ -27,7 +27,7 @@ less | CSS 预处理语言 | 3.0.4 |  [http://lesscss.cn/](http://lesscss.cn/)
     1. 与侧边栏的联动，控制 ```Sidebar``` 的缩放
     2. 加载用户头像
     3. 执行用户命令
-        - 用户设置（点击头像也能进入）
+        - 用户设置
         - 登出账户
     
 - [Sidebar](src/views/common/Sidebar.vue) （侧边栏）

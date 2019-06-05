@@ -24,9 +24,9 @@
 						<el-col :span="12">
 							<el-card shadow="hover" class="Card">
 								<div class="grid-content grid-con-1">
-									<i class="el-icon-view grid-con-icon"></i>
+									<i class="el-icon-s-tools grid-con-icon"></i>
 									<div class="grid-cont-right">
-										<div class="grid-num">介绍</div>
+										<div class="grid-num">系统管理</div>
 									</div>
 								</div>
 							</el-card>
@@ -34,37 +34,37 @@
 						<el-col :span="12">
 							<el-card shadow="hover" class="Card">
 								<div class="grid-content grid-con-2">
-									<i class="el-icon-date grid-con-icon"></i>
+									<i class="el-icon-s-comment grid-con-icon"></i>
 									<div class="grid-cont-right">
-										<div class="grid-num">相关信息</div>
+										<div class="grid-num">内容管理</div>
 									</div>
 								</div>
 							</el-card>
 						</el-col>
 					</el-row>
 
-					<el-row :gutter="20" class="mgb20">
-						<el-col :span="12">
-							<el-card shadow="hover" class="Card">
-								<div class="grid-content grid-con-3">
-									<i class="el-icon-info grid-con-icon"></i>
-									<div class="grid-cont-right">
-										<div class="grid-num">注意事项</div>
-									</div>
-								</div>
-							</el-card>
-						</el-col>
-						<el-col :span="12">
-							<el-card shadow="hover" class="Card">
-								<div class="grid-content grid-con-4">
-									<i class="el-icon-picture grid-con-icon"></i>
-									<div class="grid-cont-right">
-										<div class="grid-num">图表</div>
-									</div>
-								</div>
-							</el-card>
-						</el-col>
-					</el-row>
+<!--					<el-row :gutter="20" class="mgb20">-->
+<!--						<el-col :span="12">-->
+<!--							<el-card shadow="hover" class="Card">-->
+<!--								<div class="grid-content grid-con-3">-->
+<!--									<i class="el-icon-info grid-con-icon"></i>-->
+<!--									<div class="grid-cont-right">-->
+<!--										<div class="grid-num">注意事项</div>-->
+<!--									</div>-->
+<!--								</div>-->
+<!--							</el-card>-->
+<!--						</el-col>-->
+<!--						<el-col :span="12">-->
+<!--							<el-card shadow="hover" class="Card">-->
+<!--								<div class="grid-content grid-con-4">-->
+<!--									<i class="el-icon-picture grid-con-icon"></i>-->
+<!--									<div class="grid-cont-right">-->
+<!--										<div class="grid-num">图表</div>-->
+<!--									</div>-->
+<!--								</div>-->
+<!--							</el-card>-->
+<!--						</el-col>-->
+<!--					</el-row>-->
 
 				</el-card>
 			</el-col>
