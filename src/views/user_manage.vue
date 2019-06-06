@@ -119,6 +119,8 @@
 				>
 					<template slot-scope="scope">
 						<el-input
+							type="password"
+							show-password
 							v-show="scope.row.editable"
 							v-model="scope.row.password"
 						></el-input>
@@ -635,21 +637,32 @@
 			},
 			handleEdit(index, row) {
 				let total = row.roles.concat();
-				this.$ajax.request({
-					method: this.$ajax.method.POST,
-					url: "/rbac/userGroups/roles",
-					data: row.userGroups,
-					success: res => {
-						total = this.$lodash.uniqBy(total.concat(res.data), "rid");
-						treeDao.can(this.searchControl.roleTree, this.user.roleTree, total, () => {
-							row.editable = true;
-							let params = this.$lodash.omit(row, ['editable']);
-							this.setEditStatus(true, false, this.getIndex(index), params);
-						}, role => {
-							this.$message.warning(`权限不足以修改${role.rolename}`);
-						});
-					}
-				});
+				if (row.userGroups.length > 0) {
+					this.$ajax.request({
+						method: this.$ajax.method.POST,
+						url: "/rbac/userGroups/roles",
+						data: row.userGroups,
+						success: res => {
+							total = this.$lodash.uniqBy(total.concat(res.data), "rid");
+							treeDao.can(this.searchControl.roleTree, this.user.roleTree, total, () => {
+								row.editable = true;
+								let params = this.$lodash.omit(row, ['editable']);
+								this.setEditStatus(true, false, this.getIndex(index), params);
+							}, role => {
+								this.$message.warning(`权限不足以修改${role.rolename}`);
+							});
+						}
+					});
+				} else {
+					treeDao.can(this.searchControl.roleTree, this.user.roleTree, total, () => {
+						row.editable = true;
+						let params = this.$lodash.omit(row, ['editable']);
+						this.setEditStatus(true, false, this.getIndex(index), params);
+					}, role => {
+						this.$message.warning(`权限不足以修改${role.rolename}`);
+					});
+				}
+
 			},
 			handleInsert() {
 				this.tableControl.tableData.push({

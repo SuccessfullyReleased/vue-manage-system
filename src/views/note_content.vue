@@ -326,13 +326,17 @@
 								let value = this.$lodash.find(this.data, value => value.fid === floor.fid);
 								if (value) {
 									this.$set(value, "comments", this.$lodash.sortBy(res.data, val => val.time));
-									this.$set(this.users, value.author, null);
+
+									for (const comment of res.data) {
+										this.$set(this.users, comment.author, null);
+									}
 								} else {
 									console.error(new Error(`can't find floor which fid==${floor.fid}`));
 								}
 							}
 						})), {
 							success: () => {
+								console.log("请求", this.users);
 								this.$ajax.allrequest(Object.keys(this.users).map(username => ({
 									method: this.$ajax.method.GET,
 									url: "/rbac/user",

@@ -23,7 +23,7 @@ let requestOptions = {
 	loadingOptions: {
 		loading: false
 	},
-	dev: true
+	dev: false
 };
 
 function judge(o, init) {
