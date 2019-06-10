@@ -2,10 +2,10 @@
 
 ```vue-manage-system``` 是基于 ```Vue``` 的轻量级前台管理系统，适用于中小型项目的管理后台，支持页面元素级别的权限控制，系统具有最基本的用户管理、用户组管理、角色管理、权限管理等通用性功能。
 
-[本项目（私有）：https://github.com/SuccessfullyReleased/vue-manage-system](https://github.com/SuccessfullyReleased/vue-manage-system)
+[本项目：https://github.com/SuccessfullyReleased/vue-manage-system](https://github.com/SuccessfullyReleased/vue-manage-system)
 
 
-[后台项目（公有）：https://github.com/SuccessfullyReleased/spring-boot-manage-system](https://github.com/SuccessfullyReleased/spring-boot-manage-system)
+[后台项目：https://github.com/SuccessfullyReleased/spring-boot-manage-system](https://github.com/SuccessfullyReleased/spring-boot-manage-system)
 
 ## 技术选型
 
@@ -177,3 +177,8 @@ less | CSS 预处理语言 | 3.0.4 |  [http://lesscss.cn/](http://lesscss.cn/)
         - 参照角色树，找出所有靠近根节点且没有继承关系的角色
         - 与目标操作进行角色的权限等级对比，得出是否能够进行该操作  
         在 ```rbac``` 中，对目标（用户或用户组）的操作需要与其所拥有的的角色进行全部比对，一旦目标拥有一个或多个无法操作的角色，该操作无法进行下去
+
+- 未完成拓展：
+    - 用户管理的用户组模糊查询bug
+    - 材料管理的时间条件查询
+    - 材料管理上传时禁用操作

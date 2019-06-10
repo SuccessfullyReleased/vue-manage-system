@@ -54,7 +54,7 @@
 															icon="el-icon-edit"
 															@click.stop="handleUpdateFloor(floor)"
 															:disabled="editable"
-														>重新编辑
+														>编辑
 														</el-button>
 													</div>
 												</div>
@@ -92,7 +92,7 @@
 																icon="el-icon-edit"
 																@click="handleUpdateComment(comment)"
 																:disabled="editable"
-															>重新编辑
+															>编辑
 															</el-button>
 														</div>
 													</div>

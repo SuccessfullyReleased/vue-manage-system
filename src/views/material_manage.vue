@@ -132,7 +132,7 @@
 			</div>
 			<span slot="footer" class="dialog-footer">
 				<el-button @click="handleClose">取 消</el-button>
-        <el-button type="primary" @click="handleUpload">确 定</el-button>
+        <el-button type="success" @click="handleUpload">开始上传</el-button>
 			</span>
 		</el-dialog>
 
