@@ -2,10 +2,10 @@
 
 ```vue-manage-system``` 是基于 ```Vue``` 的轻量级前台管理系统，适用于中小型项目的管理后台，支持页面元素级别的权限控制，系统具有最基本的用户管理、用户组管理、角色管理、权限管理等通用性功能。
 
-[本项目：https://github.com/SuccessfullyReleased/vue-manage-system](https://github.com/SuccessfullyReleased/vue-manage-system)
+[本项目：https://github.com/idaijunming/vue-manage-system](https://github.com/idaijunming/vue-manage-system)
 
 
-[后台项目：https://github.com/SuccessfullyReleased/spring-boot-manage-system](https://github.com/SuccessfullyReleased/spring-boot-manage-system)
+[后台项目：https://github.com/idaijunming/spring-boot-manage-system](https://github.com/idaijunming/spring-boot-manage-system)
 
 ## 技术选型
 
